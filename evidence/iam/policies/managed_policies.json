@@ -1,0 +1,26 @@
+[
+  {
+    "policy_name": "AdministratorAccess",
+    "document": {
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "*",
+          "Resource": "*"
+        }
+      ]
+    }
+  },
+  {
+    "policy_name": "ReadOnlyAccess",
+    "document": {
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": ["ec2:Describe*", "s3:Get*"],
+          "Resource": "*"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,31 @@
+control_id: CC6.2
+framework: SOC2
+title: Authentication and Credential Management
+
+description: >
+  The organization authenticates users before granting
+  access to systems and manages credentials securely
+  to reduce the risk of unauthorized access.
+
+intent:
+  - Ensure strong authentication
+  - Protect credentials from misuse
+  - Reduce account compromise risk
+
+required_evidence:
+  - type: authentication_configuration
+    description: Authentication mechanisms and credential policies
+  - type: mfa_configuration
+    description: Multi-factor authentication settings
+  - type: identity_inventory
+    description: Inventory of identities and credential types
+
+audit_tests:
+  - Verify MFA is enabled where required
+  - Review authentication mechanisms for strength
+  - Confirm credentials are not shared or hard-coded
+
+failure_conditions:
+  - MFA not enabled for privileged users
+  - Long-lived or unmanaged credentials
+  - Use of static credentials without rotation

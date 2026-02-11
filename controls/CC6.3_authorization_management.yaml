@@ -1,0 +1,31 @@
+control_id: CC6.3
+framework: SOC2
+title: Authorization and Access Review
+
+description: >
+  The organization authorizes access to systems and
+  data based on defined criteria and periodically
+  reviews access to ensure it remains appropriate.
+
+intent:
+  - Ensure access is approved and justified
+  - Remove excessive or unused permissions
+  - Maintain ongoing access governance
+
+required_evidence:
+  - type: iam_policy
+    description: Authorization rules governing access
+  - type: access_review_records
+    description: Evidence of periodic access reviews
+  - type: identity_inventory
+    description: List of identities and assigned permissions
+
+audit_tests:
+  - Review authorization rules for appropriateness
+  - Verify access reviews are performed periodically
+  - Confirm removal of unnecessary privileges
+
+failure_conditions:
+  - Excessive permissions not justified by role
+  - No evidence of periodic access reviews
+  - Stale or unused privileged identities

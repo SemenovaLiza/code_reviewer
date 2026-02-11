@@ -1,0 +1,12 @@
+[
+  {
+    "identity": "legacy-admin",
+    "type": "user",
+    "policy": "AdministratorAccess"
+  },
+  {
+    "identity": "AdminRole",
+    "type": "role",
+    "policy": "AdministratorAccess"
+  }
+]

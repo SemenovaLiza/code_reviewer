@@ -1,0 +1,31 @@
+control_id: CC6.1
+framework: SOC2
+title: Logical Access Controls
+
+description: >
+  The organization restricts logical access to systems,
+  applications, and data to authorized users based on
+  defined job responsibilities.
+
+intent:
+  - Restrict access to authorized identities
+  - Enforce least privilege
+  - Prevent unauthorized access to systems
+
+required_evidence:
+  - type: iam_policy
+    description: Policies defining permissions granted to users and roles
+  - type: identity_inventory
+    description: List of users, roles, and their access scopes
+  - type: mfa_configuration
+    description: MFA enforcement for privileged identities
+
+audit_tests:
+  - Review access policies for least-privilege permissions
+  - Verify administrative access is restricted
+  - Confirm MFA is enforced for privileged users and roles
+
+failure_conditions:
+  - Wildcard permissions allowing all actions or resources
+  - Privileged roles without MFA enforcement
+  - Shared or unmanaged identities
