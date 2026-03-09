@@ -1,7 +1,0 @@
-{
-  "global_mfa_enforced": false,
-  "privileged_identities_without_mfa": [
-    "legacy-admin",
-    "AdminRole"
-  ]
-}

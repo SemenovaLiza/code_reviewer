@@ -1,5 +1,0 @@
-cloud_provider: aws
-service_scope: iam
-snapshot_date: 2025-01-15
-environment: production
-generated_by: security_snapshot_tool
