@@ -1,1 +1,1 @@
-# soc-agent
+# code reviewing agent
