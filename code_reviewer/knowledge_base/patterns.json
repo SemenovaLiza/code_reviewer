@@ -1,0 +1,74 @@
+{
+  "data_science_code_quality": {
+    "good_patterns": [
+      {
+        "name": "Vectorized operations",
+        "description": "Use vectorized operations instead of loops for numerical computation to improve performance.",
+        "examples": [
+          {
+            "bad": "for i in range(len(df['col'])): df['col'][i] = df['col'][i] * 2",
+            "good": "df['col'] = df['col'] * 2"
+          }
+        ],
+        "rationale": "Vectorized operations in pandas and numpy are faster and more readable."
+      },
+      {
+        "name": "Use of scikit-learn Pipelines",
+        "description": "Combine preprocessing and model training into a pipeline.",
+        "examples": [
+          {
+            "bad": "scaler = StandardScaler(); X_train = scaler.fit_transform(X_train); model.fit(X_train, y_train)",
+            "good": "pipeline = Pipeline([('scaler', StandardScaler()), ('model', LogisticRegression())]); pipeline.fit(X_train, y_train)"
+          }
+        ],
+        "rationale": "Pipelines prevent data leakage and improve reproducibility."
+      },
+      {
+        "name": "Proper train/test split",
+        "description": "Always split your data into training and testing sets before model training.",
+        "examples": [
+          {
+            "bad": "model.fit(X, y); predictions = model.predict(X)",
+            "good": "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2); model.fit(X_train, y_train); predictions = model.predict(X_test)"
+          }
+        ],
+        "rationale": "Prevents overfitting and ensures model evaluation is realistic."
+      }
+    ],
+    "anti_patterns": [
+      {
+        "name": "Hardcoding file paths",
+        "description": "Avoid using hardcoded file paths in scripts.",
+        "examples": [
+          {
+            "bad": "df = pd.read_csv('/Users/me/data.csv')",
+            "good": "df = pd.read_csv(os.path.join(data_dir, 'data.csv'))"
+          }
+        ],
+        "rationale": "Improves portability and reusability of code."
+      },
+      {
+        "name": "Ignoring missing values",
+        "description": "Do not ignore missing values; handle them appropriately.",
+        "examples": [
+          {
+            "bad": "model.fit(X, y)",
+            "good": "X = X.fillna(X.mean()); model.fit(X, y)"
+          }
+        ],
+        "rationale": "Ignoring missing data can cause model errors or bias."
+      },
+      {
+        "name": "Using loops for dataframe operations",
+        "description": "Avoid row-wise operations in dataframes using loops.",
+        "examples": [
+          {
+            "bad": "for i in range(len(df)): df['col'][i] = df['col'][i] * 2",
+            "good": "df['col'] = df['col'] * 2"
+          }
+        ],
+        "rationale": "Loops are slower; vectorized operations are preferred."
+      }
+    ]
+  }
+}
