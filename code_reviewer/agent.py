@@ -81,22 +81,25 @@ static_analyst_agent = create_agent(
 
 config = {'configurable': {'thread_id': 1}}\
 
-response = static_analyst_agent.invoke(
-    {
-        'messages': [{
-            'role': 'user', 'content': user_code  
-        }]
-    }
-)
+def static_analyst_agent(input: str):
+    response = static_analyst_agent.invoke(
+        {
+            'messages': [{
+                'role': 'user', 'content': user_code  
+            }]
+        }
+    )
+    return response['structured_response']
 
-response_2 = security_agent.invoke(
-    {
-        'messages': [{
-            'role': 'user', 'content': user_code  
-        }]
-    },
-    config = config,
-    context = Context(location=os.path.dirname(os.path.abspath(__file__)))
-)
-print(response['structured_response'])
-print('\n\n', response_2['structured_response'])
+
+def security_analyst_agent(input: str):
+    response = security_agent.invoke(
+        {
+            'messages': [{
+                'role': 'user', 'content': user_code  
+            }]
+        },
+        config = config,
+        context = Context(location=os.path.dirname(os.path.abspath(__file__)))
+    )
+    return response['structured_response']

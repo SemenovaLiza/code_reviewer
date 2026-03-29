@@ -8,10 +8,9 @@ load_dotenv()
 
 KEV_JSON_LINK = os.getenv('KEV_JSON_LINK')
 
-docs = []
 
-
-def json_to_txt(kev_link):
+def json_to_txt(kev_link=KEV_JSON_LINK):
+    docs = []
     response = requests.get(url=kev_link)
     data = response.json()
     text = data['vulnerabilities']
@@ -26,8 +25,9 @@ def json_to_txt(kev_link):
                 }
             )
         )
+    return docs
 
 
 if __name__ == '__main__':
-    json_to_txt(KEV_JSON_LINK)
+    docs = json_to_txt(KEV_JSON_LINK)
     print(docs[:5])

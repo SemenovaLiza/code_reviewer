@@ -1,33 +1,65 @@
 import os
 from dotenv import load_dotenv
 from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient
-from qdrant_client.http.models import Distance, VectorParams
-from langchain_voyageai import VoyageAIEmbeddings
+from langchain_mistralai import MistralAIEmbeddings
 
-from preprocessing import docs
+from preprocessing import json_to_txt
 
 
 load_dotenv()
 
-
 VOYAGE_API_KEY = os.getenv('VOYAGE_API_KEY')
+COLLECTION_NAME= os.getenv('COLLECTION_NAME')
+EMBED_MODEL = os.getenv('EMBED_MODEL')
 
-if __name__ == '__main__':
 
-    collection_name = "cve_collection"
+embeddings = MistralAIEmbeddings(
+    model=EMBED_MODEL,
+)
 
-    embed_model = VoyageAIEmbeddings(
-        voyage_api_key=VOYAGE_API_KEY,
-        model="voyage-law-2"
+store = None
+
+
+def get_docs():
+    return json_to_txt()
+
+
+def create_collection(docs, embeddings=embeddings, collection_name=COLLECTION_NAME):
+    QdrantVectorStore.from_documents(
+        documents=docs,
+        embedding=embeddings,
+        path="./collections/qdrant_storage",
+        collection_name=collection_name
     )
-    print('imported voyage')
+
+
+def get_store():
+    global store
+    if store is None:
+        store = QdrantVectorStore.from_existing_collection(
+            embeddings=embeddings,
+            collection_name=COLLECTION_NAME,
+            path="./collections/qdrant_storage"
+        )
+    return store
+
+
+def get_context(query, top_k=5):
+    result = get_store().similarity_search(query, k=top_k)
+    return result
+
+
+def run_embeddings():
+    docs = get_docs()
+
+    if not docs:
+        raise ValueError("No non-empty documents to embed")
+    
+    create_collection(docs)
+    print('collection was created')
 
     print('embedded')
-    vectore_store = QdrantVectorStore.from_documents(
-        docs,
-        embedding=embed_model,
-        path="./langchain_qdrant",
-        collection_name=collection_name,
-    )
-    print('vector store created')
+
+
+if __name__ == '__main__':
+    run_embeddings()
