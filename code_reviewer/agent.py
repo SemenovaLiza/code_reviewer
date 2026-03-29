@@ -10,6 +10,7 @@ from langgraph.checkpoint.memory import InMemorySaver # remembering the messages
 
 from system_instructions import instructions
 from input import user_code
+from embeddings import get_context
 
 
 load_dotenv()
@@ -64,7 +65,7 @@ def get_vulnerabilities(code: str):
 
 security_agent = create_agent(
     model = 'mistral-small-2603',
-    tools = [],
+    tools = [get_context()],
     system_prompt = instructions['security_analyst'],
     context_schema = SecurityContext,
     response_format = SecurityResponse,
@@ -103,3 +104,6 @@ def security_analyst_agent(input: str):
         context = Context(location=os.path.dirname(os.path.abspath(__file__)))
     )
     return response['structured_response']
+
+response = security_analyst_agent(user_code)
+print(response)

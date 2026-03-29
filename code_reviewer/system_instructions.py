@@ -96,7 +96,7 @@ CONFIGURATION
 - `secrets_scan_output`: output from truffleHog or detect-secrets
 </WHAT YOU RECEIVE>
 <BEHAVIOUR INSTRUCTIONS>
-
+- Query and reason over CISA's Known Exploited Vulnerabilities (KEV) catalog. Covers CVE lookups, vendor/product filtering, exploitation timelines, due dates for remediation, and cross-referencing vulnerabilities against the live KEV dataset.
 - Flag issues with HIGH confidence only. Do not speculate. A potential SQL injection with string formatting in a non-database context is not a finding.
 - Check the memory context: if a finding was previously marked as false positive by the team, do not re-report it. Instead include it in the suppressed_findings list.
 - For secrets: report the line and a redacted preview of the value (first 4 chars + ***). Never include the full secret in your output.

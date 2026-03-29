@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_qdrant import QdrantVectorStore
 from langchain_mistralai import MistralAIEmbeddings
+from langchain_core.tools import create_retriever_tool
 
 from preprocessing import json_to_txt
 
@@ -37,16 +38,19 @@ def get_store():
     global store
     if store is None:
         store = QdrantVectorStore.from_existing_collection(
-            embeddings=embeddings,
+            embedding=embeddings,
             collection_name=COLLECTION_NAME,
             path="./collections/qdrant_storage"
         )
     return store
 
 
-def get_context(query, top_k=5):
-    result = get_store().similarity_search(query, k=top_k)
-    return result
+def get_context(top_k=5):
+    retriever = get_store().as_retriever(search_kwargs={'k': top_k})
+    retriever_tool = create_retriever_tool(
+        retriever, name='KEV_KB',
+        description='Use when the user asks about known exploited vulnerabilities, whether a specific CVE is in the KEV catalog, remediation deadlines, which vendors or products are most targeted, or any question requiring up-to-date KEV data. Also trigger when the user asks to audit a list of CVEs against KEV, prioritize patching based on active exploitation, or export/filter KEV entries by date, severity, or product')
+    return retriever_tool
 
 
 def run_embeddings():
