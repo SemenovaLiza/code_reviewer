@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 KEV_JSON_LINK = os.getenv('KEV_JSON_LINK')
 OSV_API_URL = os.getenv('OSV_API_URL')
+MITRE_CWE_URL = os.getenv('MITRE_CWE_URL')
 
 
 def dependency_preparation(file: str) -> List[Dict[str, str]]:
@@ -61,14 +62,30 @@ def get_dependency_vulnerability(dependeces):
                     "severity": severity,
                     "fixed_version": vuln.get('affected')[0].get('ranges')[0].get('events')[0].get('fixed')
                 })
-    print(vulns)
     return vulns
 
+# TODO: parse mitre data
+def get_mitre_cwe(cwe_ids):
+    cwe_data = []
+    for cwe_id in cwe_ids:
+        mitre_url = f"{MITRE_CWE_URL}/{cwe_id}"
+        print(mitre_url)
+        response = requests.get(mitre_url)
+        data = response.json()
+        cwe_data.append(data)
+    print(cwe_data)
+    return cwe_data
 
-def run_dependency_cheeck():
+
+def run_dependency_check():
+    cwe_ids = []
     data = dependency_preparation('requirements.txt')
     vulns = get_dependency_vulnerability(data)
-    print(vulns)
+    for vuln in vulns:
+        for cwe in vuln.get('CWE_ids'):
+            cwe_ids.append(cwe.split('-')[1].strip())
+    get_mitre_cwe(cwe_ids)
+    print(cwe_ids)
 
 
 def kev_json_to_txt(kev_link=KEV_JSON_LINK):
@@ -91,4 +108,4 @@ def kev_json_to_txt(kev_link=KEV_JSON_LINK):
 
 
 if __name__ == '__main__':
-    run_dependency_cheeck()
+    run_dependency_check()
