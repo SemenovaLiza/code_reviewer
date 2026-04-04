@@ -4,7 +4,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_mistralai import MistralAIEmbeddings
 from langchain_core.tools import create_retriever_tool
 
-from agents.preprocessing import json_to_txt
+from preprocessing import cwe_documents
 
 
 load_dotenv()
@@ -22,7 +22,7 @@ store = None
 
 
 def get_docs():
-    return json_to_txt()
+    return cwe_documents()
 
 
 def create_collection(docs, embeddings=embeddings, collection_name=COLLECTION_NAME):
@@ -62,15 +62,15 @@ def get_context(top_k=5):
     return retriever_tool
 
 
-# def debug_retrieval(query: str, top_k: int = 5):
-#     store = get_store()
-#     results = store.similarity_search_with_score(query, k=top_k)
+def debug_retrieval(query: str, top_k: int = 5):
+    store = get_store()
+    results = store.similarity_search_with_score(query, k=top_k)
     
-#     for i, (doc, score) in enumerate(results):
-#         print(f"\n--- Chunk {i+1} | Score: {score:.4f} ---")
-#         print(f"Metadata: {doc.metadata}")
-#         print(f"Content: {doc.page_content}")
-#         print("-" * 60)
+    for i, (doc, score) in enumerate(results):
+        print(f"\n--- Chunk {i+1} | Score: {score:.4f} ---")
+        print(f"Metadata: {doc.metadata}")
+        print(f"Content: {doc.page_content}")
+        print("-" * 60)
 
 
 
@@ -87,6 +87,6 @@ def run_embeddings():
 
 
 if __name__ == '__main__':
-    run_embeddings()
-    # debug_retrieval("SQL injection vulnerability")
+    #run_embeddings()
+    debug_retrieval("User input is rendered in HTML without escaping")
 

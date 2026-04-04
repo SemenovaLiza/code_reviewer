@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 import requests
 from cvss import CVSS4, CVSS3
 from typing import List, Dict
@@ -11,8 +12,10 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 KEV_JSON_LINK = os.getenv('KEV_JSON_LINK')
+CWE_JSON_FILE = os.getenv('CWE_JSON_FILE')
 OSV_API_URL = os.getenv('OSV_API_URL')
 MITRE_CWE_URL = os.getenv('MITRE_CWE_URL')
+CWE_JSON_PATH = os.path.join(os.path.abspath(__file__), '..', CWE_JSON_FILE)
 
 
 def dependency_preparation(file: str) -> List[Dict[str, str]]:
@@ -107,5 +110,23 @@ def kev_json_to_txt(kev_link=KEV_JSON_LINK):
     return docs
 
 
+def cwe_documents(cwe_json=CWE_JSON_PATH):
+    docs = []
+    with open(cwe_json, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    for vul in data:
+        docs.append(
+            Document(
+                page_content=vul['embedding_text'],
+                metadata={
+                    'cweID': vul['id'],
+                    'name': vul['name'],
+                    'description': vul['description'],
+                    'potential_mitigations': vul['potential_mitigations']
+                }
+            )
+        )
+    print('everything is loaded')
+    return docs
 if __name__ == '__main__':
-    run_dependency_check()
+    cwe_documents()
