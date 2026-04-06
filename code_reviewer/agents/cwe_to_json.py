@@ -49,6 +49,15 @@ def parse_cwe_csv(source, output_path=None):
     return entries
 
 
+def fix_invalid_escapes(text: str) -> str:
+    return text.replace("\\", "")
+
+
+def fix_quotes(text: str) -> str:
+    # escape quotes inside string values like debug="false"
+    return re.sub(r'(\w+)="([^"]+)"', r'\1=\\"\2\\"', text)
+
+
 def _parse_row(row):
     """Convert a single CSV row dict into a clean CWE entry."""
     description_raw = row["Description"].strip()
@@ -86,6 +95,7 @@ def _parse_row(row):
     """)
     cleaned_text = clean_json(resposne.content)
     cleaned_text = fix_invalid_escapes(cleaned_text)
+    cleaned_text = fix_quotes(cleaned_text)
 
     try:
         cleaned_text = json.loads(cleaned_text)

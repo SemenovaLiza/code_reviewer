@@ -28,7 +28,7 @@ def dependency_preparation(file: str) -> List[Dict[str, str]]:
                 "package": {"name": line[0],"ecosystem": "PyPI"}, # currently for python only
                 "version": line[1]
             })
-    logging.info(f"Dependecies for OSV: {depends}")
+    #logging.info(f"Dependecies for OSV: {depends}")
     return depends
 
 
@@ -67,17 +67,17 @@ def get_dependency_vulnerability(dependeces):
                 })
     return vulns
 
-# TODO: parse mitre data
-def get_mitre_cwe(cwe_ids):
-    cwe_data = []
-    for cwe_id in cwe_ids:
-        mitre_url = f"{MITRE_CWE_URL}/{cwe_id}"
-        print(mitre_url)
-        response = requests.get(mitre_url)
-        data = response.json()
-        cwe_data.append(data)
-    print(cwe_data)
-    return cwe_data
+# # TODO: parse mitre data
+# def get_mitre_cwe(cwe_ids):
+#     cwe_data = []
+#     for cwe_id in cwe_ids:
+#         mitre_url = f"{MITRE_CWE_URL}/{cwe_id}"
+#         print(mitre_url)
+#         response = requests.get(mitre_url)
+#         data = response.json()
+#         cwe_data.append(data)
+#     print(cwe_data)
+#     return cwe_data
 
 
 def run_dependency_check():
@@ -87,8 +87,8 @@ def run_dependency_check():
     for vuln in vulns:
         for cwe in vuln.get('CWE_ids'):
             cwe_ids.append(cwe.split('-')[1].strip())
-    get_mitre_cwe(cwe_ids)
-    print(cwe_ids)
+    print(['CWE-' + cweID for cweID in cwe_ids])
+    return ['CWE-' + cweID for cweID in cwe_ids]
 
 
 def kev_json_to_txt(kev_link=KEV_JSON_LINK):
@@ -129,4 +129,4 @@ def cwe_documents(cwe_json=CWE_JSON_PATH):
     print('everything is loaded')
     return docs
 if __name__ == '__main__':
-    cwe_documents()
+    run_dependency_check()
