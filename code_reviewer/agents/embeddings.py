@@ -2,8 +2,9 @@ import os
 from dotenv import load_dotenv
 from langchain_qdrant import QdrantVectorStore
 from langchain_mistralai import MistralAIEmbeddings
+from qdrant_client.models import Filter, FieldCondition, MatchAny
 
-from agents.preprocessing import cwe_documents
+from agents.preprocessing import cwe_documents, run_dependency_check
 
 
 load_dotenv()
@@ -39,10 +40,28 @@ def get_store():
         store = QdrantVectorStore.from_existing_collection(
             embedding=embeddings,
             collection_name=COLLECTION_NAME,
-            path="./collections/qdrant_storage"
+            path="agents/collections/qdrant_storage"
         )
     return store
 
+# def dependency_vulnerability_analysis(_:str = ""):
+#     print("TOOL CALLED: investigate_vulnerabilities")
+#     cwe_ids = run_dependency_check()
+#     qdrant_client = get_store().client
+
+#     results, _ = qdrant_client.scroll(
+#         collection_name=COLLECTION_NAME,
+#         scroll_filter=Filter(
+#             must=[
+#                 FieldCondition(key="metadata.cweID", match=MatchAny(any=cwe_ids))
+#             ]
+#         ),
+#         with_payload=True,
+#         with_vectors=False
+#     )
+#     print(results)
+#     message = f"Known dependency CWEs: {results}"
+#     return message
 
 def debug_retrieval(query: str, top_k: int = 5):
     store = get_store()
@@ -56,19 +75,20 @@ def debug_retrieval(query: str, top_k: int = 5):
 
 
 
-def run_embeddings():
-    docs = get_docs()
+# def run_embeddings():
+#     # docs = get_docs()
 
-    if not docs:
-        raise ValueError("No non-empty documents to embed")
+#     # if not docs:
+#     #     raise ValueError("No non-empty documents to embed")
     
-    create_collection(docs)
-    print('collection was created')
+#     # create_collection(docs)
+#     # print('collection was created')
 
-    print('embedded')
+#     # print('embedded')
+#     mess = dependency_vulnerability_analysis()
+#     print(mess)
 
-
-if __name__ == '__main__':
-    run_embeddings()
-    # debug_retrieval("Improper Neutralization of Special Elements Used in a Template Engine")
+# if __name__ == '__main__':
+#     run_embeddings()
+#     # debug_retrieval("Improper Neutralization of Special Elements Used in a Template Engine")
 

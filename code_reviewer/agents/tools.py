@@ -12,8 +12,9 @@ from agents.preprocessing import run_dependency_check
         Call this tool when you need to identify vulnerabilities in third-party libraries.
         Do not use it for analyzing custom code.'''
 )
-def dependency_vulnerability_analysis(_:str = ""):
+def dependency_vulnerability_analysis(_: str = ""):
     print("TOOL CALLED: investigate_vulnerabilities")
+    print()
     cwe_ids = run_dependency_check()
     qdrant_client = get_store().client
 
@@ -27,8 +28,20 @@ def dependency_vulnerability_analysis(_:str = ""):
         with_payload=True,
         with_vectors=False
     )
-    message = f"Known dependency CWEs: {results}"
-    return message
+
+    clean_results = []
+    for r in results:
+        print(r)
+        payload = r.payload or {}
+        clean_results.append(payload)
+        # clean_results.append({
+        #     "cwe_id": payload.get("cweID"),
+        #     "cwe_name": payload.get("name"),
+        #     "description": payload.get("description"),
+        #     "mitigations": payload.get("potential_mitigations", [])
+        # })
+    print(clean_results)
+    return clean_results
 
 
 @tool('map_vulnerabilities_to_cwe', description='''
@@ -41,11 +54,8 @@ def dependency_vulnerability_analysis(_:str = ""):
 def map_vulnerabilities_to_cwe(vulns):
     print("TOOL CALLED: map_vulnerabilities_to_cwe")
     results = []
-    print(vulns)
     retriever = get_store().as_retriever(search_kwargs={'k': 3})
     for vuln in vulns:
-        print('VULNERABILITY')
-        print(vuln)
         docs = retriever.invoke(vuln)
         if not docs:
             continue
