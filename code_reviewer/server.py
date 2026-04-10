@@ -3,23 +3,24 @@ import os
 import hmac
 import hashlib
 import json
+import base64
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 import httpx
-from typing import Dict, Any
+from typing import Dict, Any, List
 import uvicorn
 from dotenv import load_dotenv
 
 # Import your existing security agent
-from agents.agent import security_agent, SecurityResponse, CodeVulnerability, DependencyVulnerability
+from agents.agent import security_agent, SecurityResponse, Vulnerability
 
 load_dotenv()
 
 app = FastAPI()
 
-
 GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+SECURITY_AGENT_URL = os.getenv("SECURITY_AGENT_URL", "http://3.88.187.32:8000")
 GITHUB_API_URL = "https://api.github.com"
 
 
@@ -46,13 +47,13 @@ async def fetch_pr_diff(repo_full_name: str, pr_number: int) -> str:
         "X-GitHub-Api-Version": "2022-11-28"
     }
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.get(url, headers=headers)
         response.raise_for_status()
         return response.text
 
 
-async def fetch_pr_files(repo_full_name: str, pr_number: int) -> list:
+async def fetch_pr_files(repo_full_name: str, pr_number: int) -> List[Dict]:
     """Fetch list of changed files in PR"""
     url = f"{GITHUB_API_URL}/repos/{repo_full_name}/pulls/{pr_number}/files"
     headers = {
@@ -61,7 +62,7 @@ async def fetch_pr_files(repo_full_name: str, pr_number: int) -> list:
         "X-GitHub-Api-Version": "2022-11-28"
     }
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.get(url, headers=headers)
         response.raise_for_status()
         return response.json()
@@ -77,12 +78,12 @@ async def fetch_file_content(repo_full_name: str, file_path: str, ref: str) -> s
     }
     params = {"ref": ref}
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.get(url, headers=headers, params=params)
         if response.status_code == 200:
             content = response.json()
-            import base64
-            return base64.b64decode(content['content']).decode('utf-8')
+            if 'content' in content:
+                return base64.b64decode(content['content']).decode('utf-8')
         return ""
 
 
@@ -97,7 +98,7 @@ async def post_pr_comment(repo_full_name: str, pr_number: int, comment_body: str
     }
     payload = {"body": comment_body}
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(url, headers=headers, json=payload)
         response.raise_for_status()
         return response.json()
@@ -121,23 +122,23 @@ async def post_review_comment(repo_full_name: str, pr_number: int, commit_id: st
         "side": "RIGHT"
     }
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(url, headers=headers, json=payload)
         response.raise_for_status()
         return response.json()
 
 
-def format_security_response(response: SecurityResponse) -> str:
+def format_security_response(security_result: SecurityResponse) -> str:
     """Format SecurityResponse into a readable GitHub comment"""
-    if not response.code_analysis and not response.dependencies_analysis:
+    if not security_result.code_analysis and not security_result.dependencies_analysis:
         return "## 🔒 Security Analysis Results\n\n✅ No vulnerabilities detected! Good work!"
     
     comment_parts = ["## 🔒 Security Analysis Results\n"]
     
     # Format code vulnerabilities
-    if response.code_analysis:
+    if security_result.code_analysis:
         comment_parts.append("### 🚨 Code Vulnerabilities Found\n")
-        for vuln in response.code_analysis:
+        for vuln in security_result.code_analysis:
             comment_parts.append(f"#### 📍 `{vuln.file}` (Line {vuln.line})")
             comment_parts.append(f"**Severity:** `{vuln.severity.upper()}`")
             comment_parts.append(f"**CWE:** {vuln.cwe_id} - {vuln.cwe_name}")
@@ -149,9 +150,9 @@ def format_security_response(response: SecurityResponse) -> str:
             comment_parts.append("")
     
     # Format dependency vulnerabilities
-    if response.dependencies_analysis:
+    if security_result.dependencies_analysis:
         comment_parts.append("### 📦 Dependency Vulnerabilities\n")
-        for vuln in response.dependencies_analysis:
+        for vuln in security_result.dependencies_analysis:
             comment_parts.append(f"#### {vuln.dependency}@{vuln.version}")
             comment_parts.append(f"**Severity:** `{vuln.severity.upper()}`")
             comment_parts.append(f"**CWE:** {vuln.cwe_id} - {vuln.cwe_name}")
@@ -162,13 +163,10 @@ def format_security_response(response: SecurityResponse) -> str:
             comment_parts.append("")
     
     return "\n".join(comment_parts)
-def prepare_agent_input(pr_info: Dict[str, Any], diff_content: str, changed_files: list) -> str:
+
+
+def prepare_agent_input(pr_info: Dict[str, Any], diff_content: str, changed_files: List[Dict]) -> Dict[str, str]:
     """Prepare the message for your security agent"""
-    # Extract relevant PR information
-    title = pr_info.get("title", "No title")
-    body = pr_info.get("body", "No description")
-    author = pr_info.get("user", {}).get("login", "Unknown")
-    
     # Get list of changed files
     files_list = "\n".join([f"- {f['filename']}" for f in changed_files[:20]])
     
@@ -176,13 +174,57 @@ def prepare_agent_input(pr_info: Dict[str, Any], diff_content: str, changed_file
     message = f"""
         Changed Files:
         {files_list}
+
         Code Changes (Diff):
         {diff_content[:15000]}
-
     """
-    print('diff content:')
-    print(diff_content[:15000])
-    return message
+    
+    return {"code": message}
+
+
+async def call_security_agent(agent_input: Dict[str, str]) -> SecurityResponse:
+    """Call the security agent API"""
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        response = await client.post(
+            f"{SECURITY_AGENT_URL}/security-agent/",
+            json=agent_input
+        )
+        response.raise_for_status()
+        
+        # Parse the response into SecurityResponse object
+        data = response.json()
+        
+        # Convert code_analysis
+        code_analysis = []
+        for vuln_data in data.get('code_analysis', []):
+            code_analysis.append(Vulnerability(
+                file=vuln_data.get('file', ''),
+                line=vuln_data.get('line', 0),
+                severity=vuln_data.get('severity', ''),
+                cwe_id=vuln_data.get('cwe_id', ''),
+                cwe_name=vuln_data.get('cwe_name', ''),
+                why_dangerous=vuln_data.get('why_dangerous', ''),
+                affected_code=vuln_data.get('affected_code', ''),
+                mitigations=vuln_data.get('mitigations', [])
+            ))
+        
+        # Convert dependencies_analysis
+        deps_analysis = []
+        for vuln_data in data.get('dependencies_analysis', []):
+            deps_analysis.append(Vulnerability(
+                dependency=vuln_data.get('dependency', ''),
+                version=vuln_data.get('version', ''),
+                severity=vuln_data.get('severity', ''),
+                cwe_id=vuln_data.get('cwe_id', ''),
+                cwe_name=vuln_data.get('cwe_name', ''),
+                why_dangerous=vuln_data.get('why_dangerous', ''),
+                mitigations=vuln_data.get('mitigations', [])
+            ))
+        
+        return SecurityResponse(
+            code_analysis=code_analysis,
+            dependencies_analysis=deps_analysis
+        )
 
 
 async def process_pr_webhook(payload: Dict[str, Any]):
@@ -218,7 +260,7 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         
         # Run your security agent
         print("Running security agent...")
-        security_result: SecurityResponse = security_agent(agent_input)
+        security_result = await call_security_agent(agent_input)
         
         # Format and post results
         formatted_comment = format_security_response(security_result)
@@ -249,13 +291,17 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         print(f"Error processing PR webhook: {str(e)}")
         # Post error comment
         try:
-            await post_pr_comment(
-                payload.get("repository", {}).get("full_name"),
-                payload.get("pull_request", {}).get("number"),
-                f"❌ **Error during security analysis**\n\n```\n{str(e)[:500]}\n```"
-            )
+            repo_name = payload.get("repository", {}).get("full_name")
+            pr_num = payload.get("pull_request", {}).get("number")
+            if repo_name and pr_num:
+                await post_pr_comment(
+                    repo_name,
+                    pr_num,
+                    f"❌ **Error during security analysis**\n\n```\n{str(e)[:500]}\n```"
+                )
         except:
             pass
+
 
 @app.post("/webhook/github/pr")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):
@@ -279,6 +325,12 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
     background_tasks.add_task(process_pr_webhook, payload)
     
     return JSONResponse(content={"message": "Webhook received, processing in background"})
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}
 
 
 if __name__ == "__main__":
