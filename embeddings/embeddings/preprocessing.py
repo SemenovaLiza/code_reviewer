@@ -8,7 +8,9 @@ from langchain_core.documents import Document
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-CWE_JSON_FILE = os.getenv('CWE_JSON_FILE')
+CWE_JSON_FILE = 'embeddings/' + os.getenv('CWE_JSON_FILE')
+print(CWE_JSON_FILE)
+print(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'nana'))
 CWE_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), CWE_JSON_FILE)
 
 

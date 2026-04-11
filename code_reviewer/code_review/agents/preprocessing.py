@@ -19,15 +19,22 @@ def dependency_preparation(file: str) -> List[Dict[str, str]]:
     depends = []
     with open(file, 'r', encoding='utf-8') as file_lines:
         for line in file_lines:
-            line = line.strip().split('==')
-            # { "package": { "name": "jinja2", "ecosystem": "PyPI" }, "version": "3.1.4" } => format for OSV
+            line = line.strip()
+            
+            # skip blank lines and comments
+            if not line or line.startswith('#'):
+                continue
+            
+            # skip lines without pinned version
+            if '==' not in line:
+                continue
+                
+            parts = line.split('==')
             depends.append({
-                "package": {"name": line[0],"ecosystem": "PyPI"}, # currently for python only
-                "version": line[1]
+                "package": {"name": parts[0].strip(), "ecosystem": "PyPI"},
+                "version": parts[1].strip()
             })
-    #logging.info(f"Dependecies for OSV: {depends}")
     return depends
-
 
 # temp placed here
 def get_dependency_vulnerability(dependeces):

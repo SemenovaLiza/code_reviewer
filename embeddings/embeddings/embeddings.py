@@ -4,7 +4,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_mistralai import MistralAIEmbeddings
 
 from preprocessing import cwe_documents
-from shared.store import embeddings, EMBED_MODEL, QDRANT_URL, COLLECTION_NAME
+from shared.store import embeddings, QDRANT_URL, COLLECTION_NAME
 
 
 load_dotenv()

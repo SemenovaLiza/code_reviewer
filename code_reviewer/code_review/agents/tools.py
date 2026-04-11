@@ -5,21 +5,10 @@ from langchain_qdrant import QdrantVectorStore
 from dotenv import load_dotenv
 
 from agents.preprocessing import run_dependency_check
-from shared.store import embeddings, QDRANT_URL, COLLECTION_NAME
+from shared.store import embeddings, QDRANT_URL, COLLECTION_NAME, get_store
 
 
 load_dotenv()
-
-
-def get_store():
-    global store
-    if store is None:
-        store = QdrantVectorStore.from_existing_collection(
-            embedding=embeddings,
-            collection_name=COLLECTION_NAME,
-            url=QDRANT_URL
-        )
-    return store
 
 
 @tool('investigate_dependency_vulnerabilities', description='''
