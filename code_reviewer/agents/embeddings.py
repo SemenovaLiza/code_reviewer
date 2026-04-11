@@ -74,21 +74,18 @@ def debug_retrieval(query: str, top_k: int = 5):
         print("-" * 60)
 
 
+def run_embeddings():
+    docs = get_docs()
 
-# def run_embeddings():
-#     # docs = get_docs()
-
-#     # if not docs:
-#     #     raise ValueError("No non-empty documents to embed")
+    if not docs:
+        raise ValueError("No non-empty documents to embed")
     
-#     # create_collection(docs)
-#     # print('collection was created')
+    create_collection(docs)
+    print('collection was created')
 
-#     # print('embedded')
-#     mess = dependency_vulnerability_analysis()
-#     print(mess)
+    print('embedded')
 
-# if __name__ == '__main__':
-#     run_embeddings()
-#     # debug_retrieval("Improper Neutralization of Special Elements Used in a Template Engine")
+if __name__ == '__main__':
+    run_embeddings()
+    # debug_retrieval("Improper Neutralization of Special Elements Used in a Template Engine")
 

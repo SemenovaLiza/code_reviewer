@@ -1,0 +1,67 @@
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/mistralai/Mixtral-8x7B-v0.1/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mistralai/Mixtral-8x7B-v0.1/fc7ac94680e38d7348cfa806e51218e6273104b0/tokenizer.json "HTTP/1.1 200 OK"
+INFO:     Started server process [30755]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30755]
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/mistralai/Mixtral-8x7B-v0.1/resolve/main/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mistralai/Mixtral-8x7B-v0.1/fc7ac94680e38d7348cfa806e51218e6273104b0/tokenizer.json "HTTP/1.1 200 OK"
+INFO:     Started server process [30756]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30756]
+Traceback (most recent call last):
+  File "/home/ubuntu/code_reviewer/code_reviewer/main.py", line 4, in <module>
+    from app.api.routers import main_router
+  File "/home/ubuntu/code_reviewer/code_reviewer/app/api/routers.py", line 3, in <module>
+    from app.api.endpoints import agent_router
+  File "/home/ubuntu/code_reviewer/code_reviewer/app/api/endpoints.py", line 5, in <module>
+    from agents.agent import security_agent
+  File "/home/ubuntu/code_reviewer/code_reviewer/agents/agent.py", line 9, in <module>
+    from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis
+  File "/home/ubuntu/code_reviewer/code_reviewer/agents/tools.py", line 1, in <module>
+    from qdrant_client.models import Filter, FieldCondition, MatchAny
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/qdrant_client/__init__.py", line 1, in <module>
+    from .async_qdrant_client import AsyncQdrantClient as AsyncQdrantClient
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/qdrant_client/async_qdrant_client.py", line 16, in <module>
+    from qdrant_client.async_client_base import AsyncQdrantBase
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/qdrant_client/async_client_base.py", line 13, in <module>
+    from qdrant_client.conversions import common_types as types
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/qdrant_client/conversions/common_types.py", line 10, in <module>
+    from qdrant_client.http import models as rest
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/qdrant_client/http/__init__.py", line 17, in <module>
+    update_forward_refs(model_class)
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/qdrant_client/_pydantic_compat.py", line 25, in update_forward_refs
+    model_class.model_rebuild(*args, **kwargs)
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/main.py", line 668, in model_rebuild
+    return _model_construction.complete_model_class(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/_internal/_model_construction.py", line 648, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py", line 729, in generate_schema
+    schema = self._generate_schema_inner(obj)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py", line 1023, in _generate_schema_inner
+    return self._model_schema(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py", line 856, in _model_schema
+    {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py", line 1228, in _generate_md_field_schema
+    schema, metadata = self._common_field_schema(name, field_info, decorators)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/code_reviewer/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py", line 1276, in _common_field_schema
+    with self.field_name_stack.push(name):
+  File "/usr/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+KeyboardInterrupt

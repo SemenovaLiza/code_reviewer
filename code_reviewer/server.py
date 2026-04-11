@@ -7,21 +7,44 @@ import base64
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 import httpx
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel
 import uvicorn
 from dotenv import load_dotenv
-
-# Import your existing security agent
-from agents.agent import security_agent, SecurityResponse, Vulnerability
 
 load_dotenv()
 
 app = FastAPI()
 
+# Environment variables
 GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 SECURITY_AGENT_URL = os.getenv("SECURITY_AGENT_URL", "http://3.88.187.32:8000")
 GITHUB_API_URL = "https://api.github.com"
+
+# Pydantic models for type safety (no agent imports needed)
+class CodeVulnerability(BaseModel):
+    file: str
+    line: int
+    severity: str
+    cwe_id: str
+    cwe_name: str
+    why_dangerous: str
+    affected_code: str
+    mitigations: List[str]
+
+class DependencyVulnerability(BaseModel):
+    dependency: str
+    version: str
+    severity: str
+    cwe_id: str
+    cwe_name: str
+    why_dangerous: str
+    mitigations: List[str]
+
+class SecurityResponse(BaseModel):
+    code_analysis: List[CodeVulnerability] = []
+    dependencies_analysis: List[DependencyVulnerability] = []
 
 
 def verify_github_signature(payload_body: bytes, signature_header: str) -> bool:
@@ -172,18 +195,18 @@ def prepare_agent_input(pr_info: Dict[str, Any], diff_content: str, changed_file
     
     # Prepare the message for the agent
     message = f"""
-        Changed Files:
-        {files_list}
+Changed Files:
+{files_list}
 
-        Code Changes (Diff):
-        {diff_content[:15000]}
+Code Changes (Diff):
+{diff_content[:15000]}
     """
     
     return {"code": message}
 
 
 async def call_security_agent(agent_input: Dict[str, str]) -> SecurityResponse:
-    """Call the security agent API"""
+    """Call the security agent API - no direct imports needed"""
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
             f"{SECURITY_AGENT_URL}/security-agent/",
@@ -191,13 +214,13 @@ async def call_security_agent(agent_input: Dict[str, str]) -> SecurityResponse:
         )
         response.raise_for_status()
         
-        # Parse the response into SecurityResponse object
+        # Parse the JSON response into our local model
         data = response.json()
         
         # Convert code_analysis
         code_analysis = []
         for vuln_data in data.get('code_analysis', []):
-            code_analysis.append(Vulnerability(
+            code_analysis.append(CodeVulnerability(
                 file=vuln_data.get('file', ''),
                 line=vuln_data.get('line', 0),
                 severity=vuln_data.get('severity', ''),
@@ -211,7 +234,7 @@ async def call_security_agent(agent_input: Dict[str, str]) -> SecurityResponse:
         # Convert dependencies_analysis
         deps_analysis = []
         for vuln_data in data.get('dependencies_analysis', []):
-            deps_analysis.append(Vulnerability(
+            deps_analysis.append(DependencyVulnerability(
                 dependency=vuln_data.get('dependency', ''),
                 version=vuln_data.get('version', ''),
                 severity=vuln_data.get('severity', ''),
@@ -258,8 +281,8 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         # Prepare input for security agent
         agent_input = prepare_agent_input(pr, diff_content, changed_files)
         
-        # Run your security agent
-        print("Running security agent...")
+        # Run your security agent via HTTP
+        print("Calling security agent...")
         security_result = await call_security_agent(agent_input)
         
         # Format and post results
@@ -268,13 +291,11 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         # Also post inline comments for specific vulnerabilities
         if security_result.code_analysis:
             for vuln in security_result.code_analysis:
-                # Find the correct commit SHA for this file
-                commit_sha = pr_head_sha
                 try:
                     await post_review_comment(
                         repo_full_name,
                         pr_number,
-                        commit_sha,
+                        pr_head_sha,
                         vuln.file,
                         vuln.line,
                         f"🔒 **Security Issue**\n\n**Severity:** {vuln.severity.upper()}\n**CWE:** {vuln.cwe_name}\n**Why dangerous:** {vuln.why_dangerous}\n\n**Mitigation:** {vuln.mitigations[0] if vuln.mitigations else 'Review the code carefully'}"
@@ -334,4 +355,4 @@ async def health_check():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

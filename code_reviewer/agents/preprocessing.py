@@ -15,7 +15,7 @@ KEV_JSON_LINK = os.getenv('KEV_JSON_LINK')
 CWE_JSON_FILE = os.getenv('CWE_JSON_FILE')
 OSV_API_URL = os.getenv('OSV_API_URL')
 MITRE_CWE_URL = os.getenv('MITRE_CWE_URL')
-CWE_JSON_PATH = os.path.join(os.path.abspath(__file__), '..', CWE_JSON_FILE)
+CWE_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), CWE_JSON_FILE)
 
 
 def dependency_preparation(file: str) -> List[Dict[str, str]]:

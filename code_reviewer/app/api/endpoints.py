@@ -11,4 +11,6 @@ agent_router = APIRouter()
 @agent_router.post('/security-agent/')
 def chat_security_agent(data: CodeRequest):
     response = security_agent(data.code)
+    print('agent response')
+    print(response)
     return response
