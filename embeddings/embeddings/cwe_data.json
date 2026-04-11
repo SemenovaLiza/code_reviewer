@@ -1,0 +1,554 @@
+[
+  {
+    "id": "CWE-5",
+    "name": "J2EE Misconfiguration: Data Transmission Without Encryption",
+    "embedding_text": "network data transmission plaintext weak encryption sensitive information in transit interception tampering",
+    "description": "Information sent over a network can be compromised while in transit. An attacker may be able to read or modify the contents if the data are sent in plaintext or are weakly encrypted.",
+    "potential_mitigations": [
+      "Use TLS/SSL to encrypt all network communications handling sensitive data",
+      "Ensure strong cipher suites with forward secrecy are configured for encryption",
+      "Avoid sending credentials or tokens in URLs or query parameters",
+      "Implement certificate pinning to prevent man-in-the-middle attacks"
+    ]
+  },
+  {
+    "id": "CWE-6",
+    "name": "J2EE Misconfiguration: Insufficient Session-ID Length",
+    "embedding_text": "j2ee application insufficient session id length brute force session hijacking session identifier brute force guessing weak session token",
+    "description": "The J2EE application is configured to use an insufficient session ID length.",
+    "potential_mitigations": [
+      "configure session identifiers to be at least 128 bits long to prevent brute force guessing attacks",
+      "implement a short inactive session timeout to reduce the number of valid session identifiers available for guessing",
+      "ensure session identifiers have sufficient entropy to make brute force attacks computationally infeasible",
+      "use cryptographically secure random session id generation methods like java secure random"
+    ]
+  },
+  {
+    "id": "CWE-7",
+    "name": "J2EE Misconfiguration: Missing Custom Error Page",
+    "embedding_text": "web application error page sensitive information disclosure default error page 4xx 5xx exception handler information leakage",
+    "description": "The default error page of a web application should not display sensitive information about the product.",
+    "potential_mitigations": [
+      "configure custom error pages for all HTTP status codes",
+      "implement last-resort exception handler to suppress stack traces",
+      "avoid processing errors or masking them to prevent information exposure",
+      "ensure error responses do not reveal system details or internal paths"
+    ]
+  },
+  {
+    "id": "CWE-8",
+    "name": "J2EE Misconfiguration: Entity Bean Declared Remote",
+    "embedding_text": "java bean remote interface exposes methods read modify sensitive data validation",
+    "description": "When an application exposes a remote interface for an entity bean, it might also expose methods that get or set the bean's data. These methods could be leveraged to read sensitive information, or to change data in ways that violate the application's expectations, potentially leading to other vulnerabilities.",
+    "potential_mitigations": [
+      "avoid exposing bean methods remotely unless absolutely necessary",
+      "ensure sensitive fields are not exposed in remote interfaces",
+      "implement strict input validation for all data modification operations",
+      "restrict access to bean methods using proper access control"
+    ]
+  },
+  {
+    "id": "CWE-9",
+    "name": "J2EE Misconfiguration: Weak Access Permissions for EJB Methods",
+    "embedding_text": "enterprise java beans method permissions any role elevated access rights attacker exploit permissions ejb deployment descriptor method permissions grant access anyone role access control",
+    "description": "If elevated access rights are assigned to EJB methods, then an attacker can take advantage of the permissions to exploit the product.",
+    "potential_mitigations": [
+      "assign enterprise java beans method permissions using principle of least privilege",
+      "avoid granting method access to special ANYONE role in deployment descriptor",
+      "ensure access control restrictions are applied to ejb methods",
+      "review and restrict method permissions in ejb deployment configuration"
+    ]
+  },
+  {
+    "id": "CWE-11",
+    "name": "ASP.NET Misconfiguration: Creating Debug Binary",
+    "embedding_text": "debug binaries production verbose error messages system details attackers exposure asp net",
+    "description": "Debugging messages help attackers learn about the system and plan a form of attack.",
+    "potential_mitigations": [
+      "disable debug mode in production by setting debug=false in asp net configuration files",
+      "remove debug binaries from production environments before deployment",
+      "restrict detailed error messages to development environments only",
+      "use custom error pages in production to avoid exposing system internals"
+    ]
+  },
+  {
+    "id": "CWE-12",
+    "name": "ASP.NET Misconfiguration: Missing Custom Error Page",
+    "embedding_text": "asp.net application custom error pages prevent information leakage framework default responses mining attackers",
+    "description": "An ASP .NET application must enable custom error pages in order to prevent attackers from mining information from the framework's built-in responses.",
+    "potential_mitigations": [
+      "configure asp.net to use custom error pages instead of default framework responses",
+      "avoid masking or processing errors in ways that reveal sensitive system details",
+      "validate all return values to prevent exposure of internal system information",
+      "handle exceptions in source code rather than relying on default framework behavior"
+    ]
+  },
+  {
+    "id": "CWE-13",
+    "name": "ASP.NET Misconfiguration: Password in Configuration File",
+    "embedding_text": "storing plaintext passwords in configuration files exposed credentials unauthorized access",
+    "description": "Storing a plaintext password in a configuration file allows anyone who can read the file access to the password-protected resource making them an easy target for attackers.",
+    "potential_mitigations": [
+      "encrypt passwords before storing them in configuration files",
+      "use standard encryption APIs for credential storage",
+      "apply industry-accepted algorithms like AES for password encryption",
+      "restrict file permissions to prevent unauthorized reads of configuration files"
+    ]
+  },
+  {
+    "id": "CWE-14",
+    "name": "Compiler Removal of Code to Clear Buffers",
+    "embedding_text": "compiler optimization dead store removal memory scrubbing sensitive data clearing overwrite optimization leaves secret data in memory",
+    "description": "Sensitive memory is cleared according to the source code, but compiler optimizations leave the memory untouched when it is not read from again, aka dead store removal.",
+    "potential_mitigations": [
+      "store sensitive data in volatile memory locations when possible",
+      "configure compiler to disable dead store removal for memory scrubbing operations",
+      "use compiler flags like -fno-dead-code-elimination to preserve scrubbing writes",
+      "encrypt sensitive data at rest to mitigate exposure from compiler optimizations"
+    ]
+  },
+  {
+    "id": "CWE-15",
+    "name": "External Control of System or Configuration Setting",
+    "embedding_text": "user input controls system settings configuration externally controlled settings malicious configuration changes privilege escalation",
+    "description": "One or more system settings or configuration elements can be externally controlled by a user.",
+    "potential_mitigations": [
+      "sanitize and validate all user-provided configuration inputs using allowlists",
+      "store and manage configuration settings server-side with strict access controls",
+      "implement role-based access control to restrict who can modify system settings",
+      "use environment variables or secure configuration files with proper permissions"
+    ]
+  },
+  {
+    "id": "CWE-20",
+    "name": "Improper Input Validation",
+    "embedding_text": "input validation missing unvalidated data user input metadata raw data string number parameter file contents header size length frequency price rate operations time offset position data structure hash table associative array type consistency domain rules business logic authenticity source cryptographic signature",
+    "description": "The product receives input or data, but it does not validate or incorrectly validates that the input has the properties that are required to process the data safely and correctly.",
+    "potential_mitigations": [
+      "validate all inputs including parameters cookies network data environment variables and file contents using an accept known good strategy",
+      "use a formal parser or language theoretic security approach to enforce input boundaries between raw data and internal representations",
+      "apply server side validation for all inputs even if client side checks exist to prevent bypass via modified requests",
+      "canonicalize and decode inputs before validation to prevent double encoding attacks and ensure consistent validation"
+    ]
+  },
+  {
+    "id": "CWE-22",
+    "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "embedding_text": "user input file path traversal path traversal attack directory traversal special characters .. / validate file path input validation allowlist denylist canonicalize path restrict file access",
+    "description": "The product uses external input to construct a pathname that is intended to identify a file or directory that is located underneath a restricted parent directory, but the product does not properly neutralize special elements within the pathname that can cause the pathname to resolve to a location that is outside of the restricted directory.",
+    "potential_mitigations": [
+      "use strict allowlist validation for file paths and reject any paths containing path traversal sequences like ../ or /",
+      "canonicalize and validate user input paths using built-in functions like realpath or getCanonicalPath before processing",
+      "restrict file access to a specific base directory and implement sandboxing to prevent access outside allowed paths",
+      "server-side validation and normalization of file paths even if client-side checks exist to prevent bypass attempts"
+    ]
+  },
+  {
+    "id": "CWE-23",
+    "name": "Relative Path Traversal",
+    "embedding_text": "input validation path traversal directory escape .. path canonicalization restricted directory",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize sequences such as .. that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and canonicalize all user-supplied path input using a strict allowlist-based approach",
+      "reject any input containing directory separators or .. sequences before path construction",
+      "use built-in path resolution functions like realpath() or GetCanonicalPath() to remove traversal sequences",
+      "decode and canonicalize input exactly once to prevent double-decoding bypasses"
+    ]
+  },
+  {
+    "id": "CWE-24",
+    "name": "Path Traversal: '../filedir'",
+    "embedding_text": "path traversal user input pathname directory separator .. unrestricted file system access canonicalize validation",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize ../ sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and canonicalize user-supplied paths before use using strict allowlists of permitted characters and directory separators",
+      "normalize path by resolving .. sequences and rejecting any paths that escape the intended restricted directory",
+      "use absolute paths and compare against the restricted directory root before file operations",
+      "treat all input as untrusted and reject any path containing directory traversal sequences like ../"
+    ]
+  },
+  {
+    "id": "CWE-25",
+    "name": "Path Traversal: '/../filedir'",
+    "embedding_text": "file system path traversal external input directory restriction ../ sequence bypass restricted directory access",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize /../ sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "use a strict allowlist of permitted characters for filenames and exclude directory separators like /",
+      "normalize the input path using a canonicalization library before validation to remove /../ sequences",
+      "reject any input containing directory traversal sequences such as ../ at any position",
+      "validate the final resolved path is within the intended restricted directory before file operations"
+    ]
+  },
+  {
+    "id": "CWE-26",
+    "name": "Path Traversal: '/dir/../filename'",
+    "embedding_text": "external input constructs pathname escape restricted directory dir filename traversal sequences bypass validation",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize /dir/../filename sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and sanitize all user-provided path components using strict allowlists of permitted characters and directory names",
+      "canonicalize paths by resolving redundant separators and . or .. sequences before validation to prevent traversal",
+      "avoid path concatenation with user input use filesystem-safe APIs that restrict access to allowed directories",
+      "reject paths containing directory separators or sequences like .. during input validation"
+    ]
+  },
+  {
+    "id": "CWE-27",
+    "name": "Path Traversal: 'dir/../../filename'",
+    "embedding_text": "user input pathname traversal ../ sequences file system directory bypass path manipulation restricted directory",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize multiple internal ../ sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "strictly validate and sanitize all user input with an allowlist of permitted characters and reject any input containing path traversal sequences",
+      "canonicalize paths by resolving all symbolic links and . and .. before validation to prevent bypass attempts",
+      "use absolute paths with a predefined base directory and validate that resolved paths remain within this boundary",
+      "avoid sequential removal of ../ sequences and implement a single-pass normalization and validation step"
+    ]
+  },
+  {
+    "id": "CWE-28",
+    "name": "Path Traversal: '..filedir'",
+    "embedding_text": "file system path traversal directory traversal sequences .. input validation user input file access restricted directory",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize .. sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and sanitize user-provided file paths using strict allowlists for valid characters and reject any path containing directory traversal sequences like .. or /",
+      "canonicalize and decode input paths before validation to prevent double-encoding bypasses and ensure consistent path representation",
+      "restrict file operations to a predefined allowed directory and use absolute paths to prevent traversal outside the intended scope",
+      "implement context-specific path resolution that rejects relative path components and enforces strict directory boundaries"
+    ]
+  },
+  {
+    "id": "CWE-29",
+    "name": "Path Traversal: '..filename'",
+    "embedding_text": "path traversal user input construct pathname directory .. backslash dot dot resolve outside restricted directory filesystem bypass security restriction",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize '..filename' (leading backslash dot dot) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and sanitize all user-supplied path inputs by rejecting any sequences containing directory traversal characters like ../ or ..",
+      "normalize input paths before validation by resolving and removing . and .. segments to prevent traversal bypasses",
+      "use an allowlist of permitted directory names or file extensions to restrict valid paths strictly",
+      "canonicalize and decode input paths once before validation to prevent double-encoding or bypass attempts"
+    ]
+  },
+  {
+    "id": "CWE-30",
+    "name": "Path Traversal: 'dir..filename'",
+    "embedding_text": "untrusted input constructs path without neutralizing dir dot dot sequences leading backslash directory traversal arbitrary file access",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize 'dir..filename' (leading backslash dot dot) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "sanitize and validate all user-supplied path components using a strict allowlist of permitted characters and reject any path containing .. or /",
+      "canonicalize the input path by resolving all . and .. segments before validation to remove hidden traversal attempts",
+      "use absolute path resolution with a base directory and ensure resolved paths stay within that directory tree",
+      "avoid path construction from raw input; prefer unique identifiers or mapped paths instead of direct user-controlled pathnames"
+    ]
+  },
+  {
+    "id": "CWE-31",
+    "name": "Path Traversal: 'dir....filename'",
+    "embedding_text": "path traversal multiple backslash dot dot sequences bypass directory restriction file system access outside restricted folder path manipulation",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize 'dir....filename' (multiple internal backslash dot dot) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and sanitize all user-provided path inputs using strict allowlists for filenames and extensions",
+      "use canonicalization to resolve path segments before validation to prevent sequence manipulation",
+      "apply input validation after decoding to avoid double-decode bypasses of security checks",
+      "limit allowed characters to exclude directory separators and restrict to single dot usage in filenames"
+    ]
+  },
+  {
+    "id": "CWE-32",
+    "name": "Path Traversal: '...' (Triple Dot)",
+    "embedding_text": "file system path traversal triple dot sequences restricted directory input validation allowlist canonicalization",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize '...' (triple dot) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "use strict allowlist validation for path segments excluding directory separators and .. sequences",
+      "canonicalize input paths by resolving and removing redundant separators and relative references before validation",
+      "validate and sanitize user input before constructing file system paths to prevent directory traversal",
+      "ensure input is decoded and validated only once to avoid bypass via double encoding or normalization"
+    ]
+  },
+  {
+    "id": "CWE-33",
+    "name": "Path Traversal: '....' (Multiple Dot)",
+    "embedding_text": "external input pathname restricted directory directory traversal sequences multiple dots filesystem escape restricted directories path traversal",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize '....' (multiple dot) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and sanitize all file paths using a strict allowlist of allowed characters and directory structures",
+      "canonicalize input paths before validation to resolve redundant sequences like multiple dots or slashes",
+      "reject or escape sequences like .. or ... that could traverse outside intended directories",
+      "avoid relying solely on input filtering; instead use positive validation against known-safe patterns"
+    ]
+  },
+  {
+    "id": "CWE-34",
+    "name": "Path Traversal: '....//'",
+    "embedding_text": "external input construct pathname improperly neutralizes ....// sequences filesystem traversal restricted directory path traversal attack user input file system access control",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize '....//' (doubled dot dot slash) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "use strict allowlist validation for pathnames rejecting any input containing directory traversal patterns like .. or .//",
+      "canonicalize input paths before validation to resolve redundant separators and dot segments",
+      "avoid sequential filtering of path segments as it may leave dangerous sequences intact",
+      "restrict allowed characters in filenames to alphanumerics and single dots excluding directory separators"
+    ]
+  },
+  {
+    "id": "CWE-35",
+    "name": "Path Traversal: '.../...//'",
+    "embedding_text": "user input pathname escape directory traversal .../...// path traversal validation normalization allowlist",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize '.../...//' (doubled triple dot slash) sequences that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "sanitize and canonicalize user-provided paths with a strict allowlist of allowed characters before validation",
+      "reject any path containing '..' or '...' sequences and enforce single-dot filename restrictions",
+      "use absolute paths and compare against a base directory to detect out-of-bounds traversal attempts",
+      "apply context-specific input validation for filenames and extensions using predefined allowlists"
+    ]
+  },
+  {
+    "id": "CWE-36",
+    "name": "Absolute Path Traversal",
+    "embedding_text": "external input construct file system path neutralize directory traversal sequences restricted directory access outside intended path user input validate directory traversal",
+    "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize absolute path sequences such as /abs/path that can resolve to a location that is outside of that directory.",
+    "potential_mitigations": [
+      "validate and sanitize all user input used to construct paths using strict allowlists for filename characters",
+      "canonicalize input paths before validation and reject any absolute path or directory separator sequences",
+      "use a single trusted function to handle path construction or filesystem access with built-in validation",
+      "implement allowlist-based input validation for filenames excluding directory separators like slash or backslash"
+    ]
+  },
+  {
+    "id": "CWE-37",
+    "name": "Path Traversal: '/absolute/pathname/here'",
+    "embedding_text": "unvalidated absolute file paths slash absolute path pathname traversal filesystem access arbitrary file input validation allowlist denylist directory separators canonicalization double decoding",
+    "description": "The product accepts input in the form of a slash absolute path ('/absolute/pathname/here') without appropriate validation, which can allow an attacker to traverse the file system to unintended locations or access arbitrary files.",
+    "potential_mitigations": [
+      "validate all input paths against a strict allowlist of permitted directories or filenames",
+      "canonicalize and decode input paths once before validation to prevent bypass via double encoding",
+      "reject any input containing directory separators such as slash or backslash",
+      "use a sandboxed or restricted file access mechanism to limit traversal impact"
+    ]
+  },
+  {
+    "id": "CWE-38",
+    "name": "Path Traversal: 'absolutepathnamehere'",
+    "embedding_text": "software accepts backslash absolute path without validation filesystem traversal access unintended files user input path traversal cwe 36",
+    "description": "The product accepts input in the form of a backslash absolute path ('absolutepathnamehere') without appropriate validation, which can allow an attacker to traverse the file system to unintended locations or access arbitrary files.",
+    "potential_mitigations": [
+      "validate and sanitize all user-provided file paths using a strict allowlist of allowed characters and reject any input containing directory separators",
+      "canonicalize and decode paths before validation to prevent double-encoding bypasses and ensure consistent path structure",
+      "restrict file operations to a predefined base directory and disallow absolute paths or path traversal sequences",
+      "use platform-specific path manipulation functions to normalize paths and remove any traversal attempts"
+    ]
+  },
+  {
+    "id": "CWE-39",
+    "name": "Path Traversal: 'C:dirname'",
+    "embedding_text": "user input windows drive letter volume redirection file system access directory traversal path canonicalization validation",
+    "description": "The product accepts input that contains a drive letter or Windows volume letter ('C:dirname') that potentially redirects access to an unintended location or arbitrary file.",
+    "potential_mitigations": [
+      "Validate and canonicalize all file paths by rejecting or sanitizing drive letters and volume identifiers before processing",
+      "Use strict allowlists for acceptable path components, excluding directory separators and special characters",
+      "Normalize input paths to a consistent format before validation to prevent double-decoding bypasses",
+      "Implement context-specific path validation tailored to the operating system and filesystem constraints"
+    ]
+  },
+  {
+    "id": "CWE-40",
+    "name": "Path Traversal: 'UNCsharename' (Windows UNC Share)",
+    "embedding_text": "unc share redirection input validation windows filesystem arbitrary file access directory traversal",
+    "description": "The product accepts input that identifies a Windows UNC share ('UNCsharename') that potentially redirects access to an unintended location or arbitrary file.",
+    "potential_mitigations": [
+      "validate unc share paths against a strict allowlist of permitted prefixes",
+      "canonicalize and decode user input once before validation to prevent double-decoding bypasses",
+      "reject any path containing directory traversal sequences or forbidden separators",
+      "use a single dot in filenames and block directory separators to prevent path manipulation"
+    ]
+  },
+  {
+    "id": "CWE-1327",
+    "name": "Binding to an Unrestricted IP Address",
+    "embedding_text": "server binds to 0.0.0.0 network interface all interfaces exposed remote access",
+    "description": "The product assigns the address 0.0.0.0 for a database server, a cloud service/instance, or any computing resource that communicates remotely.",
+    "potential_mitigations": [
+      "configure the server to listen only on specific ip addresses instead of 0.0.0.0",
+      "use firewall rules to restrict incoming connections to trusted ip ranges",
+      "validate and sanitize server binding configurations in deployment scripts",
+      "enable network segmentation to isolate server access to authorized networks"
+    ]
+  },
+  {
+    "id": "CWE-1328",
+    "name": "Security Version Number Mutable to Older Versions",
+    "embedding_text": "security version number mutable firmware downgrade rollback hardware vulnerability boot exploit",
+    "description": "Security-version number in hardware is mutable, resulting in the ability to downgrade (roll-back) the boot firmware to vulnerable code versions.",
+    "potential_mitigations": [
+      "store security version numbers in read-only hardware registers or protected storage",
+      "implement access controls to prevent untrusted agents from modifying version data",
+      "validate during testing that version storage remains immutable across power cycles",
+      "use cryptographic signatures to detect unauthorized firmware version changes"
+    ]
+  },
+  {
+    "id": "CWE-1329",
+    "name": "Reliance on Component That is Not Updateable",
+    "embedding_text": "unmaintainable components no updates patches vulnerabilities bugs firmware rom legacy system unsupported hardware software driver library outdated",
+    "description": "The product contains a component that cannot be updated or patched in order to remove vulnerabilities or significant bugs.",
+    "potential_mitigations": [
+      "design components to be remotely updatable including firmware and rom",
+      "include infrastructure for secure update distribution and deployment",
+      "for hardware use programmable patches like in-field fuses for minimal updates",
+      "require vendors to provide long-term support for all used components"
+    ]
+  },
+  {
+    "id": "CWE-1330",
+    "name": "Remanent Data Readable after Memory Erase",
+    "embedding_text": "sensitive data memory remanence remanence attack memory erasure secure erase cryptographic erase self encrypting memory secure memory device data retention ram sram dram charge retention power supply refresh rate temperature memory cell physical memory properties",
+    "description": "Confidential information stored in memory circuits is readable or recoverable after being cleared or erased.",
+    "potential_mitigations": [
+      "use memory devices that support secure erase commands with multiple overwrite cycles",
+      "implement cryptographic erase for self-encrypting memory devices by erasing decryption keys",
+      "employ physical destruction or ultraviolet erase for eeprom when repurposing or scrapping devices",
+      "ensure memory erase operations account for refresh rates temperature and power supply dependencies"
+    ]
+  },
+  {
+    "id": "CWE-1331",
+    "name": "Improper Isolation of Shared Resources in Network On Chip (NoC)",
+    "embedding_text": "network on chip resource sharing timing channel contention trusted untrusted agents fabric buffers crossbars switches ports channels",
+    "description": "The Network On Chip (NoC) does not isolate or incorrectly isolates its on-chip-fabric and internal resources such that they are shared between trusted and untrusted agents, creating timing channels.",
+    "potential_mitigations": [
+      "implement priority-based arbitration within the noc",
+      "allocate dedicated buffers or virtual channels for trusted data flows",
+      "enforce strict isolation between agents from different trust domains",
+      "use resource partitioning to prevent interference in shared noc components"
+    ]
+  },
+  {
+    "id": "CWE-1332",
+    "name": "Improper Handling of Faults that Lead to Instruction Skips",
+    "embedding_text": "hardware fault injection skip cpu instruction security critical branch skipping fault injection attack electrical disturbance voltage manipulation hardware trojan cpu instruction skip branch prediction security verification firmware authentication password check",
+    "description": "The device is missing or incorrectly implements circuitry or sensors that detect and mitigate the skipping of security-critical CPU instructions when they occur.",
+    "potential_mitigations": [
+      "design hardware to detect and fail safely when voltage or electrical conditions fall outside acceptable ranges",
+      "implement instruction skip detection circuits and redundant execution paths for security-critical operations",
+      "wipe sensitive secrets like encryption keys if fault injection or abnormal instruction skipping is detected",
+      "add temporal or spatial redundancy with majority voting and randomize conditional instruction timing to detect faults"
+    ]
+  },
+  {
+    "id": "CWE-1333",
+    "name": "Inefficient Regular Expression Complexity",
+    "embedding_text": "regular expression backtracking attack cpu usage nested quantifiers crafted input exponential time processor exhaustion denial of service regex engine vulnerability",
+    "description": "The product uses a regular expression with an inefficient, possibly exponential worst-case computational complexity that consumes excessive CPU cycles.",
+    "potential_mitigations": [
+      "prefer regex engines without backtracking support such as dfa based engines",
+      "enforce backtracking limits in the regex engine configuration or runtime settings",
+      "avoid applying regex to untrusted input; sanitize or reject overly long strings before matching",
+      "restrict maximum input length processed by the regular expression"
+    ]
+  },
+  {
+    "id": "CWE-1334",
+    "name": "Unauthorized Error Injection Can Degrade Hardware Redundancy",
+    "embedding_text": "unauthorized error injection into redundant hardware blocks degraded system mode redundancy access control interfaces",
+    "description": "An unauthorized agent can inject errors into a redundant block to deprive the system of redundancy or put the system in a degraded operating mode.",
+    "potential_mitigations": [
+      "enforce access controls on all error injection interfaces",
+      "disable error injection during normal runtime operation",
+      "add validation checks to block unauthorized error inputs",
+      "isolate redundant blocks from untrusted system components"
+    ]
+  },
+  {
+    "id": "CWE-1335",
+    "name": "Incorrect Bitwise Shift of Integer",
+    "embedding_text": "bitwise shift negative shift value undefined behavior integer shift left right over shift",
+    "description": "An integer value is specified to be shifted by a negative amount or an amount greater than or equal to the number of bits contained in the value causing an unexpected or indeterminate result.",
+    "potential_mitigations": [
+      "validate the shift amount is nonnegative and less than the operand's bit width before performing the operation",
+      "use language-specific safe shift functions that enforce valid shift ranges",
+      "add runtime assertions to catch invalid shift values during testing",
+      "restrict shift operations to unsigned integers to avoid undefined behavior"
+    ]
+  },
+  {
+    "id": "CWE-1336",
+    "name": "Improper Neutralization of Special Elements Used in a Template Engine",
+    "embedding_text": "template engine injection unsanitized user input template expression code execution xss server side rendering client side templating expression language injection attack",
+    "description": "The product uses a template engine to insert or process externally-influenced input, but it does not neutralize or incorrectly neutralizes special elements or syntax that can be interpreted as template expressions or other code directives when processed by the engine.",
+    "potential_mitigations": [
+      "use template engine sandbox or restricted mode to limit expression execution capabilities",
+      "validate and sanitize all user-supplied input before template processing",
+      "disable dangerous template features like arbitrary code execution and file system access",
+      "implement context-specific output encoding when rendering template output"
+    ]
+  },
+  {
+    "id": "CWE-1338",
+    "name": "Improper Protections Against Hardware Overheating",
+    "embedding_text": "hardware thermal protection overheating device silicon platform cooling sensor temperature management thermal runaway denial of service permanent denial of service safety hazard reliability issue",
+    "description": "A hardware device is missing or has inadequate protection features to prevent overheating.",
+    "potential_mitigations": [
+      "install thermal sensors on silicon and platform to enforce temperature limits",
+      "integrate active cooling solutions like variable-speed fans controlled by thermal feedback",
+      "implement thermal throttling mechanisms to reduce power consumption when temperatures exceed safe thresholds",
+      "design fail-safe shutdown procedures triggered by sustained high-temperature conditions"
+    ]
+  },
+  {
+    "id": "CWE-1339",
+    "name": "Insufficient Precision or Accuracy of a Real Number",
+    "embedding_text": "floating point precision loss real number accuracy financial calculation security decision incorrect result rounding error decimal binary representation",
+    "description": "The product processes a real number with an implementation in which the number's representation does not preserve required accuracy and precision in its fractional part, causing an incorrect result.",
+    "potential_mitigations": [
+      "use fixed precision arithmetic libraries like java bigdecimal or python decimal for financial calculations",
+      "switch to integer-based representations by storing values as scaled integers (e.g. cents instead of dollars)",
+      "implement custom high-precision number types such as ratios of big integers for critical calculations",
+      "validate input precision requirements and enforce minimum decimal places before computations"
+    ]
+  },
+  {
+    "id": "CWE-1341",
+    "name": "Multiple Releases of Same Resource or Handle",
+    "embedding_text": "double free double release reuse resource handle pointer close called twice multiple times without opening between closes",
+    "description": "The product attempts to close or release a resource or handle more than once, without any successful open between the close operations.",
+    "potential_mitigations": [
+      "ensure each resource is closed exactly once using a single clear ownership model",
+      "introduce a flag that is set on open and cleared on close to prevent duplicate releases",
+      "set the handle variable to null after closing to avoid accidental reuse in the same scope",
+      "refactor complex conditionals to centralize close logic in a dedicated cleanup function"
+    ]
+  },
+  {
+    "id": "CWE-1342",
+    "name": "Information Exposure through Microarchitectural State after Transient Execution",
+    "embedding_text": "processor microarchitectural state incorrect speculative execution transient execution side-channel attack sensitive data leak load value injection lvi microcode assist exception flush microarchitectural buffers",
+    "description": "The processor does not properly clear microarchitectural state after incorrect microcode assists or speculative execution, resulting in transient execution.",
+    "potential_mitigations": [
+      "replace vulnerable processor hardware with secure variants that clear microarchitectural state after faults",
+      "insert explicit fence instructions lfence sfence mfence clflush to remove traces of transient computations",
+      "restrict attacker ability to trigger microarchitectural exceptions through input sanitization",
+      "audit code paths to identify and remove operations exploitable via side channels"
+    ]
+  },
+  {
+    "id": "CWE-1351",
+    "name": "Improper Handling of Hardware Behavior in Exceptionally Cold Environments",
+    "embedding_text": "hardware firmware security primitives low temperature cold operating conditions volatile memory power loss reset state entropy source physical unclonable function puf cryptographic construction bitwise biasing data retention",
+    "description": "A hardware device, or the firmware running on it, is missing or has incorrect protection features to maintain goals of security primitives when the device is cooled below standard operating temperatures.",
+    "potential_mitigations": [
+      "design hardware with thermal-aware security primitives that maintain entropy under extreme cold",
+      "include power-on reset mechanisms that clear volatile state regardless of temperature",
+      "validate cryptographic constructions against adversary-controlled seed data from temperature-sensitive sources",
+      "perform environmental stress testing to verify security primitive behavior at low temperatures"
+    ]
+  },
+  {
+    "id": "CWE-1357",
+    "name": "Reliance on Insufficiently Trustworthy Component",
+    "embedding_text": "untrusted component supply chain risks third party libraries dependencies software bill of materials sbom vendor trustworthiness vendor acquisition source code loss hardware parts",
+    "description": "The product is built from multiple separate components, but it uses a component that is not sufficiently trusted to meet expectations for security, reliability, updateability, and maintainability.",
+    "potential_mitigations": [
+      "validate the trustworthiness of all third-party components and their supply chains before integration",
+      "maintain a detailed software bill of materials (sbom) listing all dependencies and their versions",
+      "monitor components for end-of-life status and new vulnerabilities throughout the product lifecycle",
+      "assess the long-term maintainability of components especially if sourced from acquired vendors"
+    ]
+  }
+]

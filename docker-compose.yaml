@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+
+  qdrant:
+    image: qdrant/qdrant:latestd
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - ai-net
+
+
+  ingestion:
+    build:
+      context: .
+      dockerfile: embeddings/Dockerfile
+    depends_on:
+      qdrant
+    networks:
+      - ai-net
+    restart: "no"
+
+  agent:
+    build:
+      context: .
+      dockerfile: code_reviewer/Dockerfile
+    depends_on:
+      ingestion:
+        condition: service_completed_successfully
+    networks:
+      - ai-net
+    ports:
+      - "8000:8000"
+
+
+  webhook-server:
+    build:
+      context: .
+      dockerfile: github-server/Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./webhook_logs:/app/logs
+    networks:
+      - ai-net
+    restart: unless-stopped
+    depends_on:
+      agent:
+        condition: service_started
+
+volumes:
+  qdrant_data:
+
+networks:
+  ai-net:
+    driver: bridge

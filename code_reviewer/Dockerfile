@@ -3,12 +3,11 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.webhook.txt
 
-COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8000
+COPY shared/ ./shared/
 
-RUN chmod +x start.sh
+COPY code_review/ ./code_review/
 
-CMD ["./start.sh"]
+CMD ["python", "code_review/main"]
