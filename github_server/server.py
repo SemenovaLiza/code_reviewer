@@ -283,30 +283,38 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         
         # Run your security agent via HTTP
         print("Calling security agent...")
-        security_result = await call_security_agent(agent_input)
-        
+        # security_result = await call_security_agent(agent_input)
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                f"{SECURITY_AGENT_URL}/orchestrate_pr/",
+                json=agent_input
+            )
+            response.raise_for_status()
+            
+            # Parse the JSON response into our local model
+            data = response.json()
         # Format and post results
-        formatted_comment = format_security_response(security_result)
+        # formatted_comment = format_security_response(security_result)
         
-        # Also post inline comments for specific vulnerabilities
-        if security_result.code_analysis:
-            for vuln in security_result.code_analysis:
-                try:
-                    await post_review_comment(
-                        repo_full_name,
-                        pr_number,
-                        pr_head_sha,
-                        vuln.file,
-                        vuln.line,
-                        f"🔒 **Security Issue**\n\n**Severity:** {vuln.severity.upper()}\n**CWE:** {vuln.cwe_name}\n**Why dangerous:** {vuln.why_dangerous}\n\n**Mitigation:** {vuln.mitigations[0] if vuln.mitigations else 'Review the code carefully'}"
-                    )
-                except Exception as e:
-                    print(f"Failed to post inline comment for {vuln.file}:{vuln.line} - {e}")
+        # # Also post inline comments for specific vulnerabilities
+        # if security_result.code_analysis:
+        #     for vuln in security_result.code_analysis:
+        #         try:
+        #             await post_review_comment(
+        #                 repo_full_name,
+        #                 pr_number,
+        #                 pr_head_sha,
+        #                 vuln.file,
+        #                 vuln.line,
+        #                 f"🔒 **Security Issue**\n\n**Severity:** {vuln.severity.upper()}\n**CWE:** {vuln.cwe_name}\n**Why dangerous:** {vuln.why_dangerous}\n\n**Mitigation:** {vuln.mitigations[0] if vuln.mitigations else 'Review the code carefully'}"
+        #             )
+        #         except Exception as e:
+        #             print(f"Failed to post inline comment for {vuln.file}:{vuln.line} - {e}")
         
-        # Post the summary comment
-        await post_pr_comment(repo_full_name, pr_number, formatted_comment)
+        # # Post the summary comment
+        # await post_pr_comment(repo_full_name, pr_number, formatted_comment)
         
-        print(f"Successfully posted security analysis for PR #{pr_number}")
+        # print(f"Successfully posted security analysis for PR #{pr_number}")
         
     except Exception as e:
         print(f"Error processing PR webhook: {str(e)}")

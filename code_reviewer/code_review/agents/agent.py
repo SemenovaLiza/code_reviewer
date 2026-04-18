@@ -3,10 +3,10 @@ from typing import List
 from dotenv import load_dotenv
 from dataclasses import dataclass
 from langchain.agents import create_agent
-from langgraph.checkpoint.memory import InMemorySaver # remembering the messages
+# from langgraph.checkpoint.memory import InMemorySaver # remembering messages
 
 from agents.system_instructions import instructions
-from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis
+from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis, accept_pr, send_notification
 
 
 load_dotenv()
@@ -47,12 +47,19 @@ class SecurityResponse:
     code_analysis: List[CodeVulnerability]
     dependencies_analysis: List[DependencyVulnerability]    
 
-# @dataclass
-# class StaticAnalysesResponse():
-#     message: List[ResponseFormat]
+
+@dataclass
+class PRMessage():
+    pr_id: int
+    mesaage: str
 
 
-checkpointer = InMemorySaver()
+@dataclass
+class PRManagerResponse():
+    message: PRMessage
+
+
+#checkpointer = InMemorySaver()
 
 
 def security_agent(message):
@@ -60,8 +67,8 @@ def security_agent(message):
         model = 'mistral-small-2603',
         tools = [map_vulnerabilities_to_cwe, dependency_vulnerability_analysis],
         system_prompt = instructions['security_analyst'],
-        response_format = SecurityResponse,
-        checkpointer = checkpointer
+        response_format = SecurityResponse
+        #checkpointer = checkpointer
     )
     response = agent.invoke(
         {
@@ -69,25 +76,24 @@ def security_agent(message):
                 'role': 'user', 'content': message  
             }]
         },
-        config = config,
+        #config = config,
     )
     return response['structured_response']
 
 
-# def static_agent(message):
-#     agent = create_agent(
-#         model = 'mistral-small-2603',
-#         tools = [],
-#         system_prompt = instructions['static_analyst'],
-#         response_format=StaticAnalysesResponse
-#     )
-#     response = agent.invoke(
-#         {
-#             'messages': [{
-#                 'role': 'user', 'content': message  
-#             }]
-#         },
-#         config = config,
-#         context = Context(location=os.path.dirname(os.path.abspath(__file__)))
-#     )
-#     return response['structured_response']
+def pr_manager_agent(message):
+    agent = create_agent(
+        model = 'mistral-small-2603',
+        tools = [accept_pr, send_notification],
+        system_prompt = instructions['pr_manager'],
+        response_format = PRManagerResponse
+    )
+    response = agent.invoke(
+        {
+            'messages': [{
+                'role': 'user', 'content': message  
+            }]
+        },
+        #config = config,
+    )
+    return response['structured_response']
