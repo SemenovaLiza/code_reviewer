@@ -48,9 +48,9 @@ def get_dependency_vulnerability(dependeces):
     for data in unprocessed_vulns:
         for vuln in data.get('vulns', []):
             if vuln:
-                for s in vuln.get("severity"):
-                    vector_type = s.get("type")
-                    vector = s.get("score")  # vector representation
+                for s in vuln.get("severity", []):
+                    vector_type = s.get("type", "")
+                    vector = s.get("score", "")  # vector representation
                     
                     if vector_type == "CVSS_V4":
                         cvss_obj = CVSS4(vector)
@@ -62,12 +62,12 @@ def get_dependency_vulnerability(dependeces):
                         break
 
                 vulns.append({
-                    "summary": vuln.get('summary'),
-                    "details": vuln.get('details'),
-                    "CVE_ids": vuln.get('aliases'),
-                    "CWE_ids": vuln.get('database_specific').get('cwe_ids'),
+                    "summary": vuln.get('summary', ""),
+                    "details": vuln.get('details', ""),
+                    "CVE_ids": vuln.get('aliases', ""),
+                    "CWE_ids": vuln.get('database_specific', {}).get('cwe_ids', ""),
                     "severity": severity,
-                    "fixed_version": vuln.get('affected')[0].get('ranges')[0].get('events')[0].get('fixed')
+                    "fixed_version": vuln.get('affected', [])[0].get('ranges', [])[0].get('events', [])[0].get('fixed', "")
                 })
     return vulns
 
@@ -77,7 +77,7 @@ def run_dependency_check():
     data = dependency_preparation('requirements.txt')
     vulns = get_dependency_vulnerability(data)
     for vuln in vulns:
-        for cwe in vuln.get('CWE_ids'):
+        for cwe in vuln.get('CWE_ids', []):
             cwe_ids.append(cwe.split('-')[1].strip())
     print(['CWE-' + cweID for cweID in cwe_ids])
     return ['CWE-' + cweID for cweID in cwe_ids]

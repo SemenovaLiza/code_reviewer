@@ -1,0 +1,10 @@
+cvss==3.6
+fastapi==0.136.0
+langchain==1.2.15
+langchain_qdrant==1.1.0
+pydantic==2.13.2
+python-dotenv==1.2.2
+qdrant_client==1.17.1
+Requests==2.33.1
+shared==0.0.32
+uvicorn==0.44.0

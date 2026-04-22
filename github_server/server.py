@@ -103,33 +103,35 @@ async def post_review_comment(
 
 
 def format_security_response(result) -> str:
-    if not result.code_analysis and not result.dependencies_analysis:
+    print('RESPONSE FOR FINAL!!!')
+    print(result, type(result))
+    if not result['code_analysis'] and not result['dependencies_analysis']:
         return "## 🔒 Security Analysis Results\n\n✅ No vulnerabilities detected! Good work!"
 
     parts = ["## 🔒 Security Analysis Results\n"]
 
-    if result.code_analysis:
+    if result['code_analysis']:
         parts.append("### 🚨 Code Vulnerabilities Found\n")
-        for vuln in result.code_analysis:
-            parts.append(f"#### 📍 `{vuln.file}` (Line {vuln.line})")
-            parts.append(f"**Severity:** `{vuln.severity.upper()}`")
-            parts.append(f"**CWE:** {vuln.cwe_id} - {vuln.cwe_name}")
-            parts.append(f"**Issue:** {vuln.why_dangerous}")
-            parts.append(f"**Affected Code:**\n```python\n{vuln.affected_code}\n```")
+        for vuln in result['code_analysis']:
+            parts.append(f"#### 📍 `{vuln['file']}` (Line {vuln['line']})")
+            parts.append(f"**Severity:** `{vuln['severity'].upper()}`")
+            parts.append(f"**CWE:** {vuln['cwe_id']} - {vuln['cwe_name']}")
+            parts.append(f"**Issue:** {vuln['why_dangerous']}")
+            parts.append(f"**Affected Code:**\n```python\n{vuln['affected_code']}\n```")
             parts.append("**Mitigations:**")
-            for m in vuln.mitigations:
+            for m in vuln['mitigations']:
                 parts.append(f"- {m}")
             parts.append("")
 
-    if result.dependencies_analysis:
+    if result['dependencies_analysis']:
         parts.append("### 📦 Dependency Vulnerabilities\n")
-        for vuln in result.dependencies_analysis:
-            parts.append(f"#### {vuln.dependency}@{vuln.version}")
-            parts.append(f"**Severity:** `{vuln.severity.upper()}`")
-            parts.append(f"**CWE:** {vuln.cwe_id} - {vuln.cwe_name}")
-            parts.append(f"**Issue:** {vuln.why_dangerous}")
+        for vuln in result['dependencies_analysis']:
+            parts.append(f"#### {vuln['dependency']}@{vuln['version']}")
+            parts.append(f"**Severity:** `{vuln['severity'].upper()}`")
+            parts.append(f"**CWE:** {vuln['cwe_id']} - {vuln['cwe_name']}")
+            parts.append(f"**Issue:** {vuln['why_dangerous']}")
             parts.append("**Mitigations:**")
-            for m in vuln.mitigations:
+            for m in vuln['mitigations']:
                 parts.append(f"- {m}")
             parts.append("")
 
@@ -182,9 +184,10 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         code_payload = prepare_agent_input(pr, diff_content, changed_files)
 
         print("Calling orchestration layer...")
+        print(payload)
         result = await call_orchestration_layer(code_payload)
 
-        if result.status == "all_good":
+        if result['status'] == "all_good":
             await post_pr_comment(
                 repo_full_name,
                 pr_number,
@@ -200,8 +203,8 @@ async def process_pr_webhook(payload: Dict[str, Any]):
                     repo_full_name,
                     pr_number,
                     pr_head_sha,
-                    vuln.file,
-                    vuln.line,
+                    vuln['file'],
+                    vuln['line'],
                     (
                         f"🔒 **Security Issue**\n\n"
                         f"**Severity:** {vuln['severity'].upper()}\n"

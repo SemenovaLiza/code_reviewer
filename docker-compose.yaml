@@ -1,5 +1,4 @@
 version: "3.9"
-
 services:
   qdrant:
     image: qdrant/qdrant:latest
@@ -35,7 +34,13 @@ services:
       - ai-net
     ports:
       - "8000:8000"
-
+    develop:
+      watch:
+        - action: sync
+          path: ./code_reviewer
+          target: /app/code_reviewer
+        - action: rebuild
+          path: code_reviewer/requirements.txt
 
   webhook-server:
     build:
@@ -53,10 +58,16 @@ services:
     depends_on:
       agent:
         condition: service_started
+    develop:
+      watch:
+        - action: sync
+          path: ./github_server
+          target: /app/github_server
+        - action: rebuild
+          path: github_server/requirements.txt
 
 volumes:
   qdrant_data:
-
 networks:
   ai-net:
     driver: bridge

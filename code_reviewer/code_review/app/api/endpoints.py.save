@@ -34,8 +34,6 @@ def parse_code_vulns(raw: list) -> List[CodeVulnerability]:
             why_dangerous=v.why_dangerous,
             affected_code=v.affected_code,
             mitigations=v.mitigations,
-            agent=v.agent,
-            suppressed=v.suppressed
         )
         for v in raw
     ]
@@ -56,7 +54,7 @@ def parse_dep_vulns(raw: list) -> List[DependencyVulnerability]:
     ]
 
 
-async def security_review(request: str):
+async def security_review(request: OrchestrationRequest):
     """
     Orchestration workflow:
       1. Call the security agent with the provided code.
@@ -64,7 +62,7 @@ async def security_review(request: str):
       3. If vulnerabilities found    → return status "vulnerabilities_found"
          with the full parsed results for the webhook to format and post.
     """
-    agent_response = security_agent(request)
+    agent_response = security_agent(request.code)
     
     if not has_vulnerabilities(agent_response):
         return OrchestrationResponse(
@@ -82,7 +80,7 @@ async def security_review(request: str):
 
 @agent_router.post("/orchestrate/security-review", response_model=OrchestrationResponse)
 async def orchestrate_pr(data: CodeRequest):
-    response = await security_review(data.code)
+    response = await security_review(data)
     print('ORCH!')
     print(response)
     return response
