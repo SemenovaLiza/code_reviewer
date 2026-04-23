@@ -78,7 +78,7 @@ When you receive "merge": true, you must:
 2. Extract the pull request number
 3. Extract the merge method if provided (defaults to "merge")
 4. Call the merge_pull_request_tool with these parameters
-5. Report the result back to the user
+5. Call tool to send message to the user about pull request status: If pull request merge failed state it explicitely, if pull request was merged successfully, say it explicitely.
 
 If any required information is missing (repo name or PR number), ask the user for it explicitly.
 

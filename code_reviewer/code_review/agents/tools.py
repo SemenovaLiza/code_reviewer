@@ -118,3 +118,29 @@ def accept_pr(repo_full_name: str, pr_number: int, merge_method: str = "merge") 
         return response.json()
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@tool('send_pr_notification', description='''Use this tool to send message about merged pull request to the messanger app. Pass message as a parameter.''')
+def send_pr_notification(message: str = ""):
+    print('send pr message tool was called')
+    slack_app_token = os.getenv("SLACK_BOT_TOKEN", "")
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Authorization": f"Bearer {slack_app_token}",
+        "Content-Type": "application/json"
+    }
+    channel = os.getenv("SLACK_CHANNEL", "")
+    payload = {
+        "channel": channel,
+        "text": message
+    }
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        print('aparently, message was sent')
+        print(f'message sent: {message}')
+        response.raise_for_status()
+
+        return response.json()
+    except Exception as e:
+        return f"Error sending pr notification: {e}"
+

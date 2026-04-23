@@ -8,3 +8,4 @@ qdrant_client==1.17.1
 Requests==2.33.1
 shared==0.0.32
 uvicorn==0.44.0
+slack_bolt==1.28.0
