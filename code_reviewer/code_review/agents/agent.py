@@ -6,7 +6,7 @@ from langchain.agents import create_agent
 # from langgraph.checkpoint.memory import InMemorySaver # remembering messages
 
 from agents.system_instructions import instructions
-from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis, accept_pr, send_notification
+from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis, accept_pr
 
 
 load_dotenv()
@@ -84,8 +84,8 @@ def security_agent(message):
 def pr_manager_agent(message):
     agent = create_agent(
         model = 'mistral-small-2603',
-        tools = [accept_pr, send_notification],
-        system_prompt = instructions['pr_manager'],
+        tools = [accept_pr,],
+        system_prompt = instructions['merge_agent'],
         response_format = PRManagerResponse
     )
     response = agent.invoke(

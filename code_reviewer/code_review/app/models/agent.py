@@ -6,6 +6,8 @@ from agents.agent import CodeVulnerability, DependencyVulnerability
 
 class CodeRequest(BaseModel):
     code:str
+    repo_full_name:str
+    pr_number:int
 
 
 class OrchestrationRequest(BaseModel):

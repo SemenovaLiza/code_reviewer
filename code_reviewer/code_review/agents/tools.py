@@ -71,112 +71,50 @@ def map_vulnerabilities_to_cwe(vulns):
     return results
 
 
+GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+ORCHESTRATION_URL = os.getenv("ORCHESTRATION_URL", "http://44.208.103.127:8000")
+GITHUB_API_URL = "https://api.github.com"
+
+
+def verify_github_signature(payload_body: bytes, signature_header: str) -> bool:
+    if not GITHUB_WEBHOOK_SECRET:
+        return True
+    hash_obj = hmac.new(
+        GITHUB_WEBHOOK_SECRET.encode("utf-8"),
+        msg=payload_body,
+        digestmod=hashlib.sha256,
+    )
+    expected_signature = f"sha256={hash_obj.hexdigest()}"
+    return hmac.compare_digest(expected_signature, signature_header)
+
 @tool('accept_pr', description='''
         Use this tool to merge a pull request that has passed security analysis.
         It will merge the PR using GitHub's API and return the merge status.
         Call this tool when you need to merge a PR after confirming security checks are complete.
         Do not use this tool if security analysis has not been performed or has failed.'''
 )
-def accept_pr(pr_number):
-    """
-    Tool to automatically merge a pull request
+def accept_pr(repo_full_name: str, pr_number: int, merge_method: str = "merge") -> dict:
+    if merge_method not in ('merge', 'squash', 'rebase'):
+        raise ValueError('merge_method must be "merge", "squash", or "rebase"')
     
-    Args:
-        pr_number: The PR number to merge (can be string like "123" or "#123")
-    """
-    print(f"TOOL CALLED: accept_pr - Merging PR #{pr_number}")
-    print()
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        raise ValueError("GITHUB_TOKEN environment variable not set")
     
-    clean_pr = str(pr_number).replace("#", "").strip()
+    # Split repo_full_name into owner/repo
+    owner, repo = repo_full_name.split("/", 1)
     
-    github_token = os.getenv('GITHUB_TOKEN')
-    repo_owner = os.getenv('GITHUB_REPO_OWNER')
-    repo_name = os.getenv('GITHUB_REPO_NAME')
-    
-    if not all([github_token, repo_owner, repo_name]):
-        return {
-            "success": False,
-            "error": "Missing GitHub configuration. Check environment variables."
-        }
-    
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/pulls/{clean_pr}/merge"
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/merge"
     headers = {
-        'Authorization': f'token {github_token}',
-        'Accept': 'application/vnd.github.v3+json'
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json"
     }
-    
-    try:
-        response = requests.put(url, headers=headers, json={"merge_method": "merge"})
-        
-        if response.status_code == 200:
-            result = {
-                "success": True,
-                "message": f"PR #{clean_pr} successfully merged",
-                "sha": response.json().get('sha')
-            }
-            print(f"✓ {result['message']}")
-        else:
-            result = {
-                "success": False,
-                "error": f"Failed to merge: {response.json().get('message', 'Unknown error')}"
-            }
-            print(f"✗ {result['error']}")
-            
-        return result
-        
-    except Exception as e:
-        error_result = {"success": False, "error": str(e)}
-        print(f"✗ Error: {str(e)}")
-        return error_result
+    payload = {"merge_method": merge_method}
 
-
-@tool('send_notification', description='''
-        Use this tool to send notifications about PR merges to a Slack channel.
-        It sends formatted messages to notify the team about PR status changes.
-        Call this tool after successfully merging a PR or when there are issues with the merge.
-        Do not use this tool for non-PR related notifications.'''
-)
-def send_notification(message):
-    """
-    Tool to send notifications to Slack
-    
-    Args:
-        message: The message to send to Slack
-    """
-    print(f"TOOL CALLED: send_slack_notification")
-    print(f"Message: {message}")
-    print()
-    
-    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
-    
-    if not webhook_url:
-        print("✗ Slack webhook URL not configured")
-        return {
-            "success": False,
-            "error": "Slack webhook URL not configured"
-        }
-    
-    payload = {
-        "text": message
-    }
-    
     try:
-        response = requests.post(
-            webhook_url,
-            data=json.dumps(payload),
-            headers={'Content-Type': 'application/json'}
-        )
-        
-        if response.status_code == 200:
-            result = {"success": True, "message": "Notification sent to Slack"}
-            print(f"✓ {result['message']}")
-        else:
-            result = {"success": False, "error": f"Slack API error: {response.text}"}
-            print(f"✗ {result['error']}")
-            
-        return result
-        
+        response = requests.put(url, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
-        error_result = {"success": False, "error": str(e)}
-        print(f"✗ Error: {str(e)}")
-        return error_result
+        return {"success": False, "error": str(e)}

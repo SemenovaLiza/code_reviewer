@@ -143,12 +143,12 @@ def prepare_agent_input(pr_info: Dict[str, Any], diff_content: str, changed_file
     return f"Changed Files:\n{files_list}\n\nCode Changes (Diff):\n{diff_content[:15000]}"
 
 
-async def call_orchestration_layer(code: str):
+async def call_orchestration_layer(code: str, repo_full_name: str, pr_number: int):
     """Send code to the orchestration layer and return a typed response."""
     async with httpx.AsyncClient(timeout=90.0) as client:
         response = await client.post(
             f"{ORCHESTRATION_URL}/orchestrate/security-review",
-            json={"code": code},
+            json={"code": code, "repo_full_name": repo_full_name, "pr_number": pr_number},
         )
         response.raise_for_status()
         print('RESPONSE!')
@@ -170,7 +170,8 @@ async def process_pr_webhook(payload: Dict[str, Any]):
         pr_head_sha = pr.get("head", {}).get("sha")
 
         print(f"Processing PR #{pr_number} in {repo_full_name} (action: {action})")
-
+        print('PR NUMBER!!!!')
+        print(type(pr_number))
         # Let the author know analysis has started
         await post_pr_comment(
             repo_full_name,
@@ -185,7 +186,7 @@ async def process_pr_webhook(payload: Dict[str, Any]):
 
         print("Calling orchestration layer...")
         print(payload)
-        result = await call_orchestration_layer(code_payload)
+        result = await call_orchestration_layer(code_payload, repo_full_name, pr_number)
 
         if result['status'] == "all_good":
             await post_pr_comment(
