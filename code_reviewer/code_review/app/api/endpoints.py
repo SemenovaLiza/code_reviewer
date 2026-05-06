@@ -98,8 +98,8 @@ async def security_review(data: CodeRequest, request: Request):
 
 
 @agent_router.post("/orchestrate/security-review", response_model=OrchestrationResponse)
-async def orchestrate_pr(data: CodeRequest):
-    response = await security_review(data)
+async def orchestrate_pr(data: CodeRequest, request: Request):
+    response = await security_review(data, request)
     print('ORCH!')
     print(response)
     return response
