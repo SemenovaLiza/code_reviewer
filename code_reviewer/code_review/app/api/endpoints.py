@@ -1,18 +1,32 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from typing import Dict, List
 import json
 
 from app.models.agent import CodeRequest, OrchestrationRequest, OrchestrationResponse
-from agents.agent import security_agent, pr_manager_agent, CodeVulnerability, DependencyVulnerability
+from agents.agent import CodeVulnerability, DependencyVulnerability
 
 
 agent_router = APIRouter()
 
 
-@agent_router.post('/security-agent/')
-def chat_security_agent(data: CodeRequest):
-    response = security_agent(data.code)
-    print('agent response')
+# @agent_router.post('/security-agent/')
+# def chat_security_agent(data: CodeRequest):
+#     agent = request.app.state.security_agent
+#     response = agent.invoke({'messages': [{'role': 'user', 'content': data.code}]})
+#     print('agent response')
+#     print(response)
+#     return response
+
+def security_agent(data: CodeRequest):
+    agent = request.app.state.security_agent
+    response = agent.invoke({'messages': [{'role': 'user', 'content': data}]})
+    print(response)
+    return response
+
+
+def pr_manager_agent(data):
+    agent = request.app.state.pr_manager_agent
+    response = agent.invoke(data)
     print(response)
     return response
 
