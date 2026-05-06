@@ -24,7 +24,9 @@ GITHUB_API_URL = "https://api.github.com"
 
 def verify_github_signature(payload_body: bytes, signature_header: str) -> bool:
     if not GITHUB_WEBHOOK_SECRET:
-        return True
+        raise ValueError("GITHUB_WEBHOOK_SECRET is not configured")
+    if not signature_header:
+        return False
     hash_obj = hmac.new(
         GITHUB_WEBHOOK_SECRET.encode("utf-8"),
         msg=payload_body,
