@@ -61,39 +61,19 @@ class PRManagerResponse():
 
 #checkpointer = InMemorySaver()
 
-
-def security_agent(message):
-    agent = create_agent(
-        model = 'mistral-small-2603',
-        tools = [map_vulnerabilities_to_cwe, dependency_vulnerability_analysis],
-        system_prompt = instructions['security_analyst'],
-        response_format = SecurityResponse
-        #checkpointer = checkpointer
+def build_security_agent():
+    return create_agent(
+        model='mistral-small-2603',
+        tools=[map_vulnerabilities_to_cwe, dependency_vulnerability_analysis],
+        system_prompt=instructions['security_analyst'],
+        response_format=SecurityResponse
     )
-    response = agent.invoke(
-        {
-            'messages': [{
-                'role': 'user', 'content': message  
-            }]
-        },
-        #config = config,
-    )
-    return response['structured_response']
 
 
-def pr_manager_agent(message):
-    agent = create_agent(
-        model = 'mistral-small-2603',
-        tools = [accept_pr, send_pr_notification],
-        system_prompt = instructions['merge_agent'],
-        response_format = PRManagerResponse
+def build_pr_manager_agent():
+    return create_agent(
+        model='mistral-small-2603',
+        tools=[accept_pr, send_pr_notification],
+        system_prompt=instructions['merge_agent'],
+        response_format=PRManagerResponse
     )
-    response = agent.invoke(
-        {
-            'messages': [{
-                'role': 'user', 'content': message  
-            }]
-        },
-        #config = config,
-    )
-    return response['structured_response']
