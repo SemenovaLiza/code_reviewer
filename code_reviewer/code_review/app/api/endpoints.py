@@ -17,14 +17,14 @@ agent_router = APIRouter()
 #     print(response)
 #     return response
 
-def security_agent(data: CodeRequest):
+def security_agent(request: Request, data):
     agent = request.app.state.security_agent
     response = agent.invoke({'messages': [{'role': 'user', 'content': data}]})
     print(response)
     return response
 
 
-def pr_manager_agent(data):
+def pr_manager_agent(request: Request, data):
     agent = request.app.state.pr_manager_agent
     response = agent.invoke(data)
     print(response)
@@ -71,7 +71,7 @@ def parse_dep_vulns(raw: list) -> List[DependencyVulnerability]:
     ]
 
 
-async def security_review(request: CodeRequest):
+async def security_review(data: CodeRequest, request: Request):
     """
     Orchestration workflow:
       1. Call the security agent with the provided code.
@@ -79,11 +79,11 @@ async def security_review(request: CodeRequest):
       3. If vulnerabilities found    → return status "vulnerabilities_found"
          with the full parsed results for the webhook to format and post.
     """
-    agent_response = security_agent(request.code)
+    agent_response = security_agent(request, data.code)
     
     if not has_vulnerabilities(agent_response):
         print('merge sent')
-        merge_response = pr_manager_agent(json.dumps({"merge": True, "repo_full_name": request.repo_full_name, "pr_number": request.pr_number}))
+        merge_response = pr_manager_agent(request, json.dumps({"merge": True, "repo_full_name": data.repo_full_name, "pr_number": data.pr_number}))
         return OrchestrationResponse(
             status="all_good",
             message=f"No vulnerabilities detected in code or dependencies. Merger response: {merge_response}",
