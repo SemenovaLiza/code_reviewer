@@ -6,7 +6,7 @@ from langchain.agents import create_agent
 # from langgraph.checkpoint.memory import InMemorySaver # remembering messages
 
 from agents.system_instructions import instructions
-from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis, accept_pr, send_pr_notification
+#from agents.tools import map_vulnerabilities_to_cwe, dependency_vulnerability_analysis, accept_pr, send_pr_notification
 
 
 load_dotenv()
@@ -60,20 +60,18 @@ class PRManagerResponse():
 
 
 #checkpointer = InMemorySaver()
-
-def build_security_agent():
+def build_agent_generic(tools, system_prompt, response_format, model="mistral-small-2603"):
     return create_agent(
-        model='mistral-small-2603',
-        tools=[map_vulnerabilities_to_cwe, dependency_vulnerability_analysis],
-        system_prompt=instructions['security_analyst'],
-        response_format=SecurityResponse
+        model=model,
+        tools=tools,
+        system_prompt=system_prompt,
+        response_format=response_format
     )
 
 
-def build_pr_manager_agent():
-    return create_agent(
-        model='mistral-small-2603',
-        tools=[accept_pr, send_pr_notification],
-        system_prompt=instructions['merge_agent'],
-        response_format=PRManagerResponse
-    )
+def build_security_agent(tools):
+    return build_agent_generic(tools=tools, system_prompt=instructions['security_analyst'], response_format=SecurityResponse)
+
+
+def build_pr_manager_agent(tools):
+    return build_agent_generic(tools=tools, system_prompt=instructions['merge_agent'], response_format=PRManagerResponse)
