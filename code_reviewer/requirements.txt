@@ -18,3 +18,4 @@ langgraph-checkpoint==4.0.1
 langgraph-prebuilt==1.0.9
 langgraph-sdk==0.3.11
 cvss
+langchain-mcp-adapters

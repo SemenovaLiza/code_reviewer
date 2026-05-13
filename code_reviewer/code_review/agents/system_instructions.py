@@ -16,7 +16,6 @@ When no security vulnerabilities are present, return:
 }
 </INSTRUCTIONS>
 <ANALYSIS_PROCESS>
-You have access to the following resource: - security://dependencies/vulnerabilities — returns known vulnerabilities in the project's dependencies with CWE mappings. Read this once at the start before analysing any code. Resource must be called only once;
 - Carefully read the provided code - Use the dependencies and available context;
 - Identify constructs that may introduce security weaknesses;
 - Use the tool to map identified code vulnerabilities to CWE entries, passing list of identified vulnerabilities. Tool can be called only once;

@@ -21,19 +21,23 @@ MCP_SERVERS_ = {
     'manager': {"url": f"{MCP_BASE_URL}:{MANAGER_PORT}/sse", "transport": "sse"},
 }
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     security_client = MultiServerMCPClient({'security': MCP_SERVERS_['security']})
     manager_client = MultiServerMCPClient({'manager': MCP_SERVERS_['manager']})
-    await security_client.__aenter__()
-    await manager_client.__aenter__()
-    app.state.security_agent = build_security_agent(await security_client.get_tools())
-    app.state.manager_agent = build_manager_agent(await manager_client.get_tools())
-    yield
-    
-    await security_client.__aexit__(None, None, None)
-    await manager_client.__aexit__(None, None, None)
+    security_tools = await security_client.get_tools()
+    manager_tools = await manager_client.get_tools()
 
+    app.state.security_agent = build_security_agent(security_tools)
+    app.state.manager_agent = build_pr_manager_agent(manager_tools)
+    
+    for tool in security_tools:
+        tool.response_format == "content"
+
+    for tool in manager_tools:
+        tool.response_format == "content"
+    yield
 
 app = FastAPI(lifespan=lifespan)
 
